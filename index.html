@@ -167,7 +167,7 @@
         .gantt-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 800px;
+            min-width: 1000px;
         }
 
         .gantt-table th, .gantt-table td {
@@ -190,39 +190,55 @@
             z-index: 10;
         }
 
-        /* ----- การตั้งค่า Sticky คอลัมน์ที่ 1 และ 2 ----- */
+        /* ----- การตั้งค่า Sticky คอลัมน์ที่ 1, 2 และ 3 ----- */
         .gantt-table th:nth-child(1), .gantt-table td:nth-child(1) {
             position: sticky;
             left: 0;
             background-color: #06170e;
             z-index: 11;
-            min-width: 190px;
-            max-width: 190px;
+            min-width: 170px;
+            max-width: 170px;
             border-right: 1px solid var(--border-dim);
         }
 
         .gantt-table th:nth-child(2), .gantt-table td:nth-child(2) {
             position: sticky;
-            left: 190px; /* เท่ากับความกว้างคอลัมน์แรก */
+            left: 170px; /* ต่อจากคอลัมน์แรก */
+            background-color: #06170e;
+            z-index: 11;
+            text-align: left;
+            min-width: 130px;
+            max-width: 130px;
+            border-right: 1px solid var(--border-dim);
+        }
+
+        .gantt-table th:nth-child(3), .gantt-table td:nth-child(3) {
+            position: sticky;
+            left: 300px; /* 170 + 130 */
             background-color: #06170e;
             z-index: 11;
             text-align: center;
-            min-width: 220px; /* ขยายเล็กน้อยเพื่อรองรับ Grid 5 คอลัมน์ */
+            min-width: 220px; 
             max-width: 220px;
             border-right: 2px solid var(--border-dim);
         }
 
-        .gantt-table thead th:nth-child(1), .gantt-table thead th:nth-child(2) {
+        .gantt-table thead th:nth-child(1), 
+        .gantt-table thead th:nth-child(2), 
+        .gantt-table thead th:nth-child(3) {
             z-index: 12;
             background-color: #030806;
             color: var(--neon-green);
         }
 
         tr:hover td { background-color: rgba(0, 255, 136, 0.08); }
-        tr:hover td:nth-child(1), tr:hover td:nth-child(2) { background-color: #0b2e1c; }
+        tr:hover td:nth-child(1), 
+        tr:hover td:nth-child(2), 
+        tr:hover td:nth-child(3) { background-color: #0b2e1c; }
 
         .step-name { font-weight: bold; color: var(--text-main); }
         .step-order { color: var(--neon-yellow); font-size: 0.7rem; }
+        .work-code-text { color: #8ca89a; font-family: 'Courier New', monospace; font-size: 0.75rem; font-weight: bold; }
 
         /* แถบกราฟ Gantt */
         .gantt-bar-wrapper {
@@ -328,14 +344,15 @@
             <table class="gantt-table" id="ganttTable">
                 <thead id="ganttHead">
                     <tr>
-                        <th style="min-width: 190px;">ขั้นตอน [Order]</th>
+                        <th style="min-width: 170px;">ขั้นตอน [Order]</th>
+                        <th style="min-width: 130px;">รหัสชิ้นงาน</th>
                         <th style="min-width: 220px;">ผลิตได้ / ยอดสั่ง / %</th>
                         <th>...</th>
                     </tr>
                 </thead>
                 <tbody id="ganttBody">
                     <tr>
-                        <td colspan="3" class="text-center py-4 text-muted">
+                        <td colspan="4" class="text-center py-4 text-muted">
                             <i class="fa-solid fa-spinner fa-spin me-2"></i> โหลดข้อมูล...
                         </td>
                     </tr>
@@ -433,7 +450,6 @@
         const validForWork = rawData.orders.filter(i => isMatch(i, fOrder, fPo, '', fStep));
         const validForStep = rawData.orders.filter(i => isMatch(i, fOrder, fPo, fWork, ''));
 
-        // ใช้ String(...).trim() เพื่อแก้ปัญหาตัวซ้ำ
         const orders = [...new Set(validForOrder.map(i => i.order_no ? String(i.order_no).trim() : null).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'th', {numeric:true}));
         const pos = [...new Set(validForPo.map(i => i.po_no ? String(i.po_no).trim() : null).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'th', {numeric:true}));
         const works = [...new Set(validForWork.map(i => (maps.workIdToCode[i.id_work] || i.id_work) ? String(maps.workIdToCode[i.id_work] || i.id_work).trim() : null).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'th', {numeric:true}));
@@ -488,8 +504,12 @@
         const tbody = document.getElementById('ganttBody');
 
         if(orders.length === 0) {
-            thead.innerHTML = `<tr><th style="min-width:190px;">ขั้นตอน [Order]</th><th style="min-width:220px;">ผลิตได้ / ยอดสั่ง / %</th></tr>`;
-            tbody.innerHTML = `<tr><td colspan="2" class="text-center py-4 text-muted">ไม่พบข้อมูลตามเงื่อนไข</td></tr>`;
+            thead.innerHTML = `<tr>
+                <th style="min-width:170px;">ขั้นตอน [Order]</th>
+                <th style="min-width:130px;">รหัสชิ้นงาน</th>
+                <th style="min-width:220px;">ผลิตได้ / ยอดสั่ง / %</th>
+            </tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">ไม่พบข้อมูลตามเงื่อนไข</td></tr>`;
             return;
         }
 
@@ -523,8 +543,12 @@
                         }
                     });
 
+                    // ดึงรหัสสินค้า
+                    let wCode = maps.workIdToCode[order.id_work] ? String(maps.workIdToCode[order.id_work]).trim() : (order.id_work || '-');
+
                     rowsData.push({
                         order_no: order.order_no || 'N/A',
+                        work_code: wCode,
                         step_name: getStepAbbr(maps.stepIdToName[stepId]) || 'Unknown',
                         target: orderQty,
                         actual: actualTotal,
@@ -536,7 +560,7 @@
         });
 
         if (rowsData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="2" class="text-center py-4 text-muted">ไม่มีข้อมูลวันที่สำหรับแผนงานนี้</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">ไม่มีข้อมูลวันที่สำหรับแผนงานนี้</td></tr>`;
             return;
         }
 
@@ -553,6 +577,7 @@
         // Thead
         let headHtml = `<tr>
             <th>ขั้นตอน <span style="font-weight:normal; font-size:0.65rem;">[Order]</span></th>
+            <th>รหัสชิ้นงาน</th>
             <th>ผลิตได้ / ยอดสั่ง / %</th>`;
         dateHeaders.forEach(d => { headHtml += `<th style="min-width: 40px;">${d.getDate()}/${d.getMonth()+1}</th>`; });
         headHtml += `</tr>`;
@@ -571,7 +596,7 @@
 
             bodyHtml += `<tr>`;
             
-            // Col 1: การใช้ Flex เพื่อดันชื่อชิดซ้าย และ Order ชิดขวา
+            // Col 1: ขั้นตอน [Order]
             bodyHtml += `
                 <td style="padding: 0 8px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; height: 100%;">
@@ -581,7 +606,14 @@
                 </td>
             `;
 
-            // Col 2: ล็อกความกว้างตายตัวด้วย CSS Grid เพื่อให้เครื่องหมายและหลักหน่วยตรงกัน 100%
+            // Col 2: รหัสชิ้นงาน (Work Code)
+            bodyHtml += `
+                <td style="padding: 0 8px;">
+                    <span class="work-code-text">${row.work_code}</span>
+                </td>
+            `;
+
+            // Col 3: ผลิตได้ / ยอดสั่ง / % (ล็อกตำแหน่งตายตัว)
             bodyHtml += `
                 <td style="padding: 0; font-family: 'Courier New', monospace; font-size: 0.8rem; letter-spacing: -0.5px;">
                     <div style="display: grid; grid-template-columns: 60px 15px 60px 15px 50px; justify-content: center; align-items: center; width: 100%; height: 100%;">
