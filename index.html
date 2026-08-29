@@ -1,60 +1,583 @@
-async function saveEdits() {
-    if (Object.keys(localEdits).length === 0) {
-        cancelEdits();
-        return;
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JAGUAR GANTT CHART // STOCK BOARD THEME</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #030806;
+            --panel-bg: rgba(7, 24, 16, 0.95);
+            --border-neon: #00ff88;
+            --border-dim: #17633c;
+            --text-main: #f0fdf7;
+            --text-label: #a7e0c4;
+            --text-muted: #8ca89a;
+            --neon-green: #00ff88;
+            --neon-glow: rgba(0, 255, 136, 0.3);
+            --neon-yellow: #f5a623;
+            --input-bg: #112a1e;
+            --input-text: #ffffff;
+            --table-bg: #071910;
+            --bar-planned: #113a24;
+            --bar-actual: #00ff88;
+            --cell-width: 28px;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 10px 15px;
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(3, 8, 6, 0.95), rgba(5, 20, 12, 0.9)),
+                        url('https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1200&q=80') no-repeat center center;
+            background-size: cover;
+            z-index: -1;
+            filter: brightness(0.3) contrast(1.2) hue-rotate(60deg);
+        }
+
+        .dashboard-container {
+            width: 100%;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-dim);
+            border-radius: 6px;
+            padding: 12px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border-dim);
+            padding-bottom: 8px;
+        }
+
+        .filter-title {
+            font-weight: bold;
+            color: var(--neon-green);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+        }
+
+        .sync-status {
+            font-size: 0.7rem;
+            color: var(--neon-green);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 255, 136, 0.1);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--neon-green);
+        }
+
+        .filter-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--text-label);
+            margin-bottom: 4px;
+        }
+
+        .form-select-stock {
+            width: 100%;
+            padding: 4px 8px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-dim);
+            color: var(--input-text);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            outline: none;
+        }
+
+        .btn-reset {
+            background: #212529;
+            color: #ced4da;
+            border: 1px solid #495057;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        .gantt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .gantt-title {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--neon-yellow);
+        }
+
+        .gantt-legend {
+            display: flex;
+            gap: 12px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .legend-item { display: flex; align-items: center; gap: 4px; }
+        .box-planned { width: 10px; height: 10px; background: var(--bar-planned); border: 1px solid var(--border-dim); }
+        .box-actual { width: 10px; height: 10px; background: var(--bar-actual); }
+        .box-custom { width: 10px; height: 10px; background: #ff00ff; border: 1px solid #fff; }
+
+        .gantt-container {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-dim);
+            background: var(--table-bg);
+            max-height: 70vh;
+            position: relative;
+        }
+
+        .gantt-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1200px;
+        }
+
+        .gantt-table th, .gantt-table td {
+            border: 1px solid rgba(23, 99, 60, 0.4);
+            padding: 4px 6px;
+            text-align: center;
+            color: var(--text-main);
+            font-size: 0.75rem;
+            height: 32px;
+            white-space: nowrap;
+            box-sizing: border-box;
+        }
+
+        .gantt-table th {
+            background-color: #05140c;
+            color: #a7e0c4;
+            font-size: 0.7rem;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .date-header {
+            min-width: var(--cell-width) !important;
+            max-width: var(--cell-width) !important;
+            width: var(--cell-width) !important;
+            padding: 4px 0 !important;
+        }
+
+        /* --- Sticky Columns --- */
+        .gantt-table th:nth-child(1), .gantt-table td:nth-child(1) {
+            position: sticky; left: 0; background-color: #06170e; z-index: 11;
+            min-width: 150px; max-width: 150px; border-right: 1px solid var(--border-dim);
+        }
+        .gantt-table th:nth-child(2), .gantt-table td:nth-child(2) {
+            position: sticky; left: 150px; background-color: #06170e; z-index: 11;
+            text-align: left; min-width: 110px; max-width: 110px; border-right: 1px solid var(--border-dim);
+        }
+        .gantt-table th:nth-child(3), .gantt-table td:nth-child(3) {
+            position: sticky; left: 260px; background-color: #06170e; z-index: 11;
+            text-align: center; min-width: 190px; max-width: 190px; border-right: 1px solid var(--border-dim);
+        }
+        .gantt-table th:nth-child(4), .gantt-table td:nth-child(4) {
+            position: sticky; left: 450px; background-color: #06170e; z-index: 11;
+            text-align: center; min-width: 90px; max-width: 90px; border-right: 1px solid var(--border-dim);
+        }
+        .gantt-table th:nth-child(5), .gantt-table td:nth-child(5) {
+            position: sticky; left: 540px; background-color: #06170e; z-index: 11;
+            text-align: center; min-width: 90px; max-width: 90px; border-right: 2px solid var(--border-dim);
+        }
+
+        .gantt-table thead th:nth-child(1), 
+        .gantt-table thead th:nth-child(2), 
+        .gantt-table thead th:nth-child(3),
+        .gantt-table thead th:nth-child(4),
+        .gantt-table thead th:nth-child(5) {
+            z-index: 12;
+            background-color: #030806;
+            color: var(--neon-green);
+        }
+
+        tr:hover td { background-color: rgba(0, 255, 136, 0.08); }
+        tr:hover td:nth-child(1), 
+        tr:hover td:nth-child(2), 
+        tr:hover td:nth-child(3),
+        tr:hover td:nth-child(4),
+        tr:hover td:nth-child(5) { background-color: #0b2e1c; }
+
+        .step-name { font-weight: bold; color: var(--text-main); }
+        .step-order { color: var(--neon-yellow); font-size: 0.7rem; }
+        .work-code-text { color: #8ca89a; font-family: 'Courier New', monospace; font-size: 0.75rem; font-weight: bold; }
+        .date-text { color: var(--neon-yellow); font-family: 'Courier New', monospace; font-size: 0.7rem; }
+
+        .gantt-bar-wrapper {
+            position: absolute;
+            height: 20px;
+            top: 5px;
+            border-radius: 2px;
+            cursor: pointer;
+            z-index: 5;
+            transition: box-shadow 0.2s, background-color 0.2s;
+        }
+
+        .bar-planned {
+            position: absolute;
+            left: 0; top: 0; height: 100%; width: 100%;
+            background-color: var(--bar-planned);
+            border-radius: 2px;
+            z-index: 1;
+        }
+
+        .bar-actual {
+            position: absolute;
+            left: 0; top: 0; height: 100%;
+            background-color: var(--bar-actual);
+            border-radius: 2px;
+            z-index: 2;
+        }
+
+        .bar-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            z-index: 3;
+            color: #000;
+            font-size: 0.65rem;
+            font-weight: bold;
+            line-height: 20px;
+            pointer-events: none;
+        }
+        
+        .bar-text.low-percent {
+            color: var(--text-main);
+            text-shadow: 1px 1px 1px #000;
+        }
+
+        .gantt-bar-wrapper.is-editing {
+            z-index: 50 !important;
+            box-shadow: 0 0 0 2px var(--neon-yellow), 0 0 10px rgba(245, 166, 35, 0.5);
+            cursor: move;
+        }
+
+        .gantt-bar-wrapper.is-editing .bar-planned {
+            background-color: rgba(245, 166, 35, 0.25);
+        }
+
+        .resize-handle {
+            position: absolute;
+            top: 0;
+            width: 10px;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.3);
+            display: none;
+            z-index: 10;
+        }
+        .resize-handle-left { left: 0; cursor: ew-resize; border-top-left-radius: 2px; border-bottom-left-radius: 2px; }
+        .resize-handle-right { right: 0; cursor: ew-resize; border-top-right-radius: 2px; border-bottom-right-radius: 2px; }
+        
+        .gantt-bar-wrapper.is-editing .resize-handle {
+            display: block;
+        }
+
+        #save-bar {
+            position: fixed;
+            bottom: -100px;
+            left: 0;
+            width: 100%;
+            background: var(--neon-yellow);
+            color: #000;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 9999;
+            transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.5);
+            border-top: 2px solid #fff;
+        }
+        #save-bar.show {
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <div class="filter-header">
+            <div class="filter-title">
+                <i class="fa-solid fa-bars-progress"></i> JAGUAR GANTT CHART
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="sync-status" id="syncIndicator">
+                    <i class="fa-solid fa-circle-check"></i> SYNC
+                </div>
+                <button class="btn-reset" onclick="clearFilters()">RESET</button>
+            </div>
+        </div>
+        <div class="filter-grid">
+            <div class="filter-group">
+                <label>Order No:</label>
+                <select id="filter_order" class="form-select-stock" onchange="applyFilters()">
+                    <option value="">-- All Orders --</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>PO No:</label>
+                <select id="filter_po" class="form-select-stock" onchange="applyFilters()">
+                    <option value="">-- All PO --</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Product Code:</label>
+                <select id="filter_work" class="form-select-stock" onchange="applyFilters()">
+                    <option value="">-- All Products --</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Step:</label>
+                <select id="filter_step" class="form-select-stock" onchange="applyFilters()">
+                    <option value="">-- All Steps --</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-container" style="padding: 0; border: none; background: transparent;">
+        <div class="gantt-header" style="padding: 0 5px;">
+            <div class="gantt-title" id="ganttChartTitle">> ภาพรวมแผนงาน</div>
+            <div class="gantt-legend">
+                <div class="legend-item"><div class="box-planned"></div> แผนงาน (Plan)</div>
+                <div class="legend-item"><div class="box-actual"></div> ผลิตจริง (Actual)</div>
+                <div class="legend-item"><div class="box-custom"></div> สีที่กำหนดเอง (คลิกขวาเปลี่ยนสี)</div>
+            </div>
+        </div>
+        
+        <div class="gantt-container" id="ganttScrollArea">
+            <table class="gantt-table" id="ganttTable">
+                <thead id="ganttHead">
+                    <tr>
+                        <th style="min-width: 150px;">ขั้นตอน [Order]</th>
+                        <th style="min-width: 110px;">รหัสชิ้นงาน</th>
+                        <th style="min-width: 190px;">ผลิตได้ / ยอดสั่ง / %</th>
+                        <th style="min-width: 90px;">วันที่เริ่ม</th>
+                        <th style="min-width: 90px;">วันที่จบ</th>
+                        <th>...</th>
+                    </tr>
+                </thead>
+                <tbody id="ganttBody">
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            <i class="fa-solid fa-spinner fa-spin me-2"></i> โหลดข้อมูล...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="save-bar">
+        <div class="d-flex align-items-center gap-3">
+            <i class="fa-solid fa-triangle-exclamation fs-3"></i>
+            <div>
+                <h6 class="mb-0 fw-bold">คุณมีการแก้ไขแผนงาน (Unsaved Changes)</h6>
+                <small class="opacity-75">ลากแท่งสีส้มเพื่อเปลี่ยนวันที่ หรือดึงขอบเพื่อยืดหดระยะเวลา</small>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button onclick="cancelEdits()" class="btn btn-dark btn-sm fw-bold">ยกเลิก</button>
+            <button onclick="saveEdits()" class="btn btn-light btn-sm fw-bold text-dark" id="btn-save-edits">
+                <i class="fa-solid fa-floppy-disk me-1"></i> บันทึกข้อมูล
+            </button>
+        </div>
+    </div>
+
+<script>
+    const SUPABASE_URL = "https://siiiifesdjuunwmwozfb.supabase.co/rest/v1";
+    const SUPABASE_KEY = "sb_publishable_ohToE8Z_Fzo87uBtzdPDIg_cqHCi3HT";
+    const headers = { 
+        "apikey": SUPABASE_KEY, 
+        "Authorization": "Bearer " + SUPABASE_KEY, 
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal"
+    };
+
+    const STEP_ABBR_MAP = {
+        "ตัดเหรียญมือ": "ตร.มือ", "ตัดเหรียญออโต": "ตร.ออโต", "ตัดมุม": "ตัดมุม", 
+        "รีดใบ": "รีดใบ", "ตัดใบ": "ตัดใบ", "ตร.มือ": "ตร.มือ", "ตร.ออโต": "ตร.ออโต"
+    };
+
+    function getStepAbbr(name) {
+        if(!name) return "";
+        return STEP_ABBR_MAP[name.trim()] || name.trim();
     }
 
-    const btnSave = document.getElementById('btn-save-edits');
-    const originalText = btnSave.innerHTML;
-    btnSave.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-1"></i> กำลังบันทึก...`;
-    btnSave.disabled = true;
+    let rawData = { orders: [], workItems: [], steps: [], targets: [], daily: [], orderSteps: [] };
+    let maps = { workIdToCode: {}, stepIdToName: {}, targetIdToStepId: {}, workIdToStepIds: {} };
+    
+    const CELL_WIDTH = 28; 
+    let localEdits = {}; 
+    let customColors = JSON.parse(localStorage.getItem('jaguar_custom_colors') || '{}'); 
+    let editingTaskId = null; 
+    let currentMinDate = null; 
+    let currentTotalDays = 0; 
+    let isUserEditing = false; 
 
-    try {
-        const updatePromises = Object.entries(localEdits).map(async ([taskId, dates]) => {
-            const [orderIdStr, stepIdStr] = taskId.split('_');
-            const orderId = parseInt(orderIdStr);
-            const stepId = parseInt(stepIdStr);
+    window.onload = async function() {
+        await fetchAllData();
+        setupDragAndDrop();
 
-            // ใช้ Upsert (POST พร้อมระบุ Prefer: resolution=merge-duplicates)
-            // วิธีนี้จะทำการ Insert ถ้ายังไม่มี หรือ Update ถ้ามีอยู่แล้ว
-            const url = `${SUPABASE_URL}/order_steps`;
-            const payload = {
-                id_order: orderId,
-                id_step: stepId,
-                start_date: dates.startDate,
-                end_date: dates.endDate
-            };
-
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    ...headers,
-                    "Prefer": "resolution=merge-duplicates"
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-                throw new Error(`Failed to save Task ID: ${taskId}`);
+        setInterval(async () => {
+            if (!isUserEditing && !editingTaskId) {
+                await fetchAllData(true); 
             }
+        }, 5000);
+    };
+
+    async function fetchAllData(isSilent = false) {
+        try {
+            if (!isSilent) {
+                document.getElementById('syncIndicator').innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin"></i> SYNC';
+                document.getElementById('syncIndicator').style.borderColor = "var(--neon-yellow)";
+                document.getElementById('syncIndicator').style.color = "var(--neon-yellow)";
+            }
+
+            const endpoints = [
+                `${SUPABASE_URL}/orders?select=*`,
+                `${SUPABASE_URL}/work_items?select=*`,
+                `${SUPABASE_URL}/production_steps?select=*`,
+                `${SUPABASE_URL}/targets?select=*`,
+                `${SUPABASE_URL}/daily_production?select=id_order,id_target,produced_amount`,
+                `${SUPABASE_URL}/order_steps?select=*`
+            ];
+
+            const responses = await Promise.all(endpoints.map(url => fetch(url, { headers })));
+            const data = await Promise.all(responses.map(res => res.json()));
+
+            rawData = { orders: data[0], workItems: data[1], steps: data[2], targets: data[3], daily: data[4], orderSteps: data[5] || [] };
+
+            buildMaps();
+            applyFilters();
+
+            if (!isSilent) {
+                setTimeout(() => {
+                    document.getElementById('syncIndicator').innerHTML = '<i class="fa-solid fa-circle-check"></i> SYNC';
+                    document.getElementById('syncIndicator').style.borderColor = "var(--neon-green)";
+                    document.getElementById('syncIndicator').style.color = "var(--neon-green)";
+                }, 1000);
+            }
+
+        } catch (error) {
+            console.error("Error:", error);
+            if (!isSilent) {
+                document.getElementById('syncIndicator').innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ERR';
+                document.getElementById('syncIndicator').style.color = "#ff3366";
+            }
+        }
+    }
+
+    function buildMaps() {
+        maps.workIdToCode = {}; rawData.workItems.forEach(w => maps.workIdToCode[w.id_work] = w.work_code);
+        maps.stepIdToName = {}; rawData.steps.forEach(s => maps.stepIdToName[s.id_step] = s.step_name);
+        maps.targetIdToStepId = {}; maps.workIdToStepIds = {};
+        rawData.targets.forEach(t => {
+            maps.targetIdToStepId[t.id_target] = t.id_step;
+            if(!maps.workIdToStepIds[t.id_work]) maps.workIdToStepIds[t.id_work] = new Set();
+            maps.workIdToStepIds[t.id_work].add(t.id_step);
+        });
+    }
+
+    function populateDropdowns(fOrder = '', fPo = '', fWork = '', fStep = '') {
+        const isMatch = (item, orderVal, poVal, workVal, stepVal) => {
+            let wCode = maps.workIdToCode[item.id_work] ? String(maps.workIdToCode[item.id_work]).trim() : String(item.id_work);
+            let matchOrder = !orderVal || (item.order_no && String(item.order_no).trim() === orderVal);
+            let matchPo = !poVal || (item.po_no && String(item.po_no).trim() === poVal);
+            let matchWork = !workVal || wCode === workVal;
+            let matchStep = true;
+            if(stepVal) {
+                let sIds = maps.workIdToStepIds[item.id_work];
+                matchStep = sIds && sIds.has(parseInt(stepVal));
+            }
+            return matchOrder && matchPo && matchWork && matchStep;
+        };
+
+        const validForOrder = rawData.orders.filter(i => isMatch(i, '', fPo, fWork, fStep));
+        const validForPo = rawData.orders.filter(i => isMatch(i, fOrder, '', fWork, fStep));
+        const validForWork = rawData.orders.filter(i => isMatch(i, fOrder, fPo, '', fStep));
+        const validForStep = rawData.orders.filter(i => isMatch(i, fOrder, fPo, fWork, ''));
+
+        const orders = [...new Set(validForOrder.map(i => i.order_no ? String(i.order_no).trim() : null).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'th', {numeric:true}));
+        const pos = [...new Set(validForPo.map(i => i.po_no ? String(i.po_no).trim() : null).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'th', {numeric:true}));
+        const works = [...new Set(validForWork.map(i => (maps.workIdToCode[i.id_work] || i.id_work) ? String(maps.workIdToCode[i.id_work] || i.id_work).trim() : null).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'th', {numeric:true}));
+
+        let validStepIds = new Set();
+        validForStep.forEach(o => { if(maps.workIdToStepIds[o.id_work]) maps.workIdToStepIds[o.id_work].forEach(id => validStepIds.add(id)); });
+        const steps = [...validStepIds].map(id => ({ id: id, name: getStepAbbr(maps.stepIdToName[id]) })).filter(s => s.name).sort((a,b) => a.name.localeCompare(b.name, 'th'));
+
+        const upd = (id, arr, def, val) => {
+            let el = document.getElementById(id);
+            if(document.activeElement === el) return; 
+            el.innerHTML = `<option value="">${def}</option>` + arr.map(x => {
+                let v = typeof x === 'object' ? x.id : x;
+                let n = typeof x === 'object' ? x.name : x;
+                return `<option value="${v}" ${String(v)===val?'selected':''}>${n}</option>`;
+            }).join('');
+        };
+
+        upd('filter_order', orders, '-- All Orders --', fOrder);
+        upd('filter_po', pos, '-- All PO --', fPo);
+        upd('filter_work', works, '-- All Products --', fWork);
+        upd('filter_step', steps, '-- All Steps --', fStep);
+    }
+
+    function applyFilters() {
+        const fOrder = document.getElementById('filter_order').value;
+        const fPo = document.getElementById('filter_po').value;
+        const fWork = document.getElementById('filter_work').value;
+        const fStep = document.getElementById('filter_step').value;
+
+        populateDropdowns(fOrder, fPo, fWork, fStep);
+        document.getElementById('ganttChartTitle').innerText = fWork ? `> แผนงานชิ้นงาน: ${fWork}` : (fOrder ? `> แผนงานใบสั่ง: ${fOrder}` : '> ภาพรวมแผนงานทั้งหมด');
+
+        let filteredOrders = rawData.orders.filter(o => {
+            let wCode = maps.workIdToCode[o.id_work] ? String(maps.workIdToCode[o.id_work]).trim() : String(o.id_work);
+            let matchOrder = !fOrder || (o.order_no && String(o.order_no).trim() === fOrder);
+            let matchPo = !fPo || (o.po_no && String(o.po_no).trim() === fPo);
+            let matchWork = !fWork || wCode === fWork;
+            let matchStep = !fStep || (maps.workIdToStepIds[o.id_work] && maps.workIdToStepIds[o.id_work].has(parseInt(fStep)));
+            return matchOrder && matchPo && matchWork && matchStep;
         });
 
-        await Promise.all(updatePromises);
-        
-        alert('บันทึกข้อมูลวันที่สำเร็จแล้ว');
-        
-        editingTaskId = null;
-        isUserEditing = false;
-        localEdits = {}; 
-        document.getElementById('save-bar').classList.remove('show');
-        
-        await fetchAllData(); 
-        
-    } catch (error) {
-        console.error("Error saving edits:", error);
-        alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง');
-    } finally {
-        btnSave.innerHTML = originalText;
-        btnSave.disabled = false;
+        renderGanttChart(filteredOrders, fStep);
     }
-}
+
+    function
