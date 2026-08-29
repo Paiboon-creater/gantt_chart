@@ -26,7 +26,7 @@
             --table-bg: #071910;
             --bar-planned: #113a24;
             --bar-actual: #00ff88;
-            --cell-width: 40px; /* Base width for 1 day */
+            --cell-width: 20px; /* ลดขนาดจาก 40px เหลือ 20px (ครึ่งหนึ่ง) */
         }
 
         body {
@@ -198,6 +198,8 @@
             max-width: var(--cell-width) !important;
             width: var(--cell-width) !important;
             padding: 4px 0 !important;
+            font-size: 0.55rem !important; /* ปรับขนาดอักษรให้เล็กลงเพื่อให้พอดีช่อง 20px */
+            letter-spacing: -0.5px;
         }
 
         /* ----- การตั้งค่า Sticky คอลัมน์ที่ 1, 2 และ 3 ----- */
@@ -264,10 +266,11 @@
             text-align: center;
             z-index: 3;
             color: #000;
-            font-size: 0.65rem;
+            font-size: 0.55rem; /* ปรับขนาดตัวเลข % ให้เล็กลงเล็กน้อย */
             font-weight: bold;
             line-height: 20px;
             pointer-events: none; /* Prevent text selection while dragging */
+            overflow: hidden;
         }
         
         .bar-text.low-percent {
@@ -438,7 +441,7 @@
     let maps = { workIdToCode: {}, stepIdToName: {}, targetIdToStepId: {}, workIdToStepIds: {} };
     
     // State สำหรับการแก้ไข Drag & Drop
-    const CELL_WIDTH = 40;
+    const CELL_WIDTH = 20; // ลดขนาดจาก 40 เป็น 20 เพื่อให้คำนวณการ Snap ได้ถูกต้อง
     let localEdits = {}; // เก็บข้อมูลการแก้ไขชั่วคราว { taskId: { startDate, endDate } }
     let editingTaskId = null; // ID ของ task ที่กำลังถูกแก้ไข
     let currentMinDate = null; // เก็บ minDate ของกระดานปัจจุบันใช้อ้างอิงตอนลาก
@@ -870,7 +873,7 @@
             isDragging = false;
             document.body.style.userSelect = '';
 
-            // Snap เข้า Grid ช่องละ 40px
+            // Snap เข้า Grid ช่องละ 20px
             const currentLeft = parseInt(activeElement.style.left);
             const currentWidth = parseInt(activeElement.style.width);
             
