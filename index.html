@@ -26,6 +26,7 @@
             --table-bg: #071910;
             --bar-planned: #113a24;
             --bar-actual: #00ff88;
+            --cell-width: 40px; /* Base width for 1 day */
         }
 
         body {
@@ -176,8 +177,9 @@
             text-align: center;
             color: var(--text-main);
             font-size: 0.75rem;
-            height: 24px;
+            height: 32px; /* Set fixed row height */
             white-space: nowrap;
+            box-sizing: border-box;
         }
 
         .gantt-table th {
@@ -190,37 +192,26 @@
             z-index: 10;
         }
 
+        /* Fixed Date Header Width */
+        .date-header {
+            min-width: var(--cell-width) !important;
+            max-width: var(--cell-width) !important;
+            width: var(--cell-width) !important;
+            padding: 4px 0 !important;
+        }
+
         /* ----- การตั้งค่า Sticky คอลัมน์ที่ 1, 2 และ 3 ----- */
         .gantt-table th:nth-child(1), .gantt-table td:nth-child(1) {
-            position: sticky;
-            left: 0;
-            background-color: #06170e;
-            z-index: 11;
-            min-width: 170px;
-            max-width: 170px;
-            border-right: 1px solid var(--border-dim);
+            position: sticky; left: 0; background-color: #06170e; z-index: 11;
+            min-width: 170px; max-width: 170px; border-right: 1px solid var(--border-dim);
         }
-
         .gantt-table th:nth-child(2), .gantt-table td:nth-child(2) {
-            position: sticky;
-            left: 170px; /* ต่อจากคอลัมน์แรก */
-            background-color: #06170e;
-            z-index: 11;
-            text-align: left;
-            min-width: 130px;
-            max-width: 130px;
-            border-right: 1px solid var(--border-dim);
+            position: sticky; left: 170px; background-color: #06170e; z-index: 11;
+            text-align: left; min-width: 130px; max-width: 130px; border-right: 1px solid var(--border-dim);
         }
-
         .gantt-table th:nth-child(3), .gantt-table td:nth-child(3) {
-            position: sticky;
-            left: 300px; /* 170 + 130 */
-            background-color: #06170e;
-            z-index: 11;
-            text-align: center;
-            min-width: 220px; 
-            max-width: 220px;
-            border-right: 2px solid var(--border-dim);
+            position: sticky; left: 300px; background-color: #06170e; z-index: 11;
+            text-align: center; min-width: 220px; max-width: 220px; border-right: 2px solid var(--border-dim);
         }
 
         .gantt-table thead th:nth-child(1), 
@@ -240,22 +231,20 @@
         .step-order { color: var(--neon-yellow); font-size: 0.7rem; }
         .work-code-text { color: #8ca89a; font-family: 'Courier New', monospace; font-size: 0.75rem; font-weight: bold; }
 
-        /* แถบกราฟ Gantt */
+        /* แถบกราฟ Gantt (Interactive Version) */
         .gantt-bar-wrapper {
-            position: relative;
-            height: 14px;
-            width: 100%;
-            background-color: transparent;
-            display: flex;
-            align-items: center;
+            position: absolute;
+            height: 20px;
+            top: 5px; /* Center inside 32px height row */
+            border-radius: 2px;
+            cursor: pointer;
+            z-index: 5;
+            transition: box-shadow 0.2s, background-color 0.2s;
         }
 
         .bar-planned {
             position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 100%;
+            left: 0; top: 0; height: 100%; width: 100%;
             background-color: var(--bar-planned);
             border-radius: 2px;
             z-index: 1;
@@ -263,13 +252,10 @@
 
         .bar-actual {
             position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
+            left: 0; top: 0; height: 100%;
             background-color: var(--bar-actual);
             border-radius: 2px;
             z-index: 2;
-            transition: width 0.5s ease-in-out;
         }
 
         .bar-text {
@@ -280,12 +266,62 @@
             color: #000;
             font-size: 0.65rem;
             font-weight: bold;
-            line-height: 14px;
+            line-height: 20px;
+            pointer-events: none; /* Prevent text selection while dragging */
         }
         
         .bar-text.low-percent {
             color: var(--text-main);
             text-shadow: 1px 1px 1px #000;
+        }
+
+        /* Editing State Styles */
+        .gantt-bar-wrapper.is-editing {
+            z-index: 50 !important;
+            box-shadow: 0 0 0 2px var(--neon-yellow), 0 0 10px rgba(245, 166, 35, 0.5);
+            cursor: move;
+        }
+
+        .gantt-bar-wrapper.is-editing .bar-planned {
+            background-color: rgba(245, 166, 35, 0.25); /* Tint to orange when editing */
+        }
+
+        /* Resize Handles */
+        .resize-handle {
+            position: absolute;
+            top: 0;
+            width: 10px;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.3);
+            display: none;
+            z-index: 10;
+        }
+        .resize-handle-left { left: 0; cursor: ew-resize; border-top-left-radius: 2px; border-bottom-left-radius: 2px; }
+        .resize-handle-right { right: 0; cursor: ew-resize; border-top-right-radius: 2px; border-bottom-right-radius: 2px; }
+        
+        .gantt-bar-wrapper.is-editing .resize-handle {
+            display: block;
+        }
+
+        /* Save Action Bar */
+        #save-bar {
+            position: fixed;
+            bottom: -100px;
+            left: 0;
+            width: 100%;
+            background: var(--neon-yellow);
+            color: #000;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 9999;
+            transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.5);
+            border-top: 2px solid #fff;
+        }
+        #save-bar.show {
+            bottom: 0;
         }
     </style>
 </head>
@@ -340,7 +376,7 @@
             </div>
         </div>
         
-        <div class="gantt-container">
+        <div class="gantt-container" id="ganttScrollArea">
             <table class="gantt-table" id="ganttTable">
                 <thead id="ganttHead">
                     <tr>
@@ -361,10 +397,32 @@
         </div>
     </div>
 
+    <!-- Floating Save Action Bar -->
+    <div id="save-bar">
+        <div class="d-flex align-items-center gap-3">
+            <i class="fa-solid fa-triangle-exclamation fs-3"></i>
+            <div>
+                <h6 class="mb-0 fw-bold">คุณมีการแก้ไขแผนงาน (Unsaved Changes)</h6>
+                <small class="opacity-75">ลากแท่งสีส้มเพื่อเปลี่ยนวันที่ หรือดึงขอบเพื่อยืดหดระยะเวลา</small>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button onclick="cancelEdits()" class="btn btn-dark btn-sm fw-bold">ยกเลิก</button>
+            <button onclick="saveEdits()" class="btn btn-light btn-sm fw-bold text-dark" id="btn-save-edits">
+                <i class="fa-solid fa-floppy-disk me-1"></i> บันทึกข้อมูล
+            </button>
+        </div>
+    </div>
+
 <script>
     const SUPABASE_URL = "https://siiiifesdjuunwmwozfb.supabase.co/rest/v1";
     const SUPABASE_KEY = "sb_publishable_ohToE8Z_Fzo87uBtzdPDIg_cqHCi3HT";
-    const headers = { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY, "Content-Type": "application/json" };
+    const headers = { 
+        "apikey": SUPABASE_KEY, 
+        "Authorization": "Bearer " + SUPABASE_KEY, 
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal" // แนะนำให้ใส่สำหรับการทำ UPDATE
+    };
 
     const STEP_ABBR_MAP = {
         "ตัดเหรียญมือ": "ตร.มือ", "ตัดเหรียญออโต": "ตร.ออโต", "ตัดมุม": "ตัดมุม", 
@@ -378,10 +436,19 @@
 
     let rawData = { orders: [], workItems: [], steps: [], targets: [], daily: [], orderSteps: [] };
     let maps = { workIdToCode: {}, stepIdToName: {}, targetIdToStepId: {}, workIdToStepIds: {} };
+    
+    // State สำหรับการแก้ไข Drag & Drop
+    const CELL_WIDTH = 40;
+    let localEdits = {}; // เก็บข้อมูลการแก้ไขชั่วคราว { taskId: { startDate, endDate } }
+    let editingTaskId = null; // ID ของ task ที่กำลังถูกแก้ไข
+    let currentMinDate = null; // เก็บ minDate ของกระดานปัจจุบันใช้อ้างอิงตอนลาก
+    let currentTotalDays = 0; // เก็บจำนวนวันทั้งหมดในกระดาน
 
     window.onload = async function() {
         await fetchAllData();
-        setInterval(fetchAllData, 30000);
+        setupDragAndDrop(); // กำหนด Event Listener สำหรับลากวาง
+        // ปิด Auto Sync ชั่วคราวเพื่อไม่ให้ขัดขวางการลากแก้ไข
+        // setInterval(fetchAllData, 30000); 
     };
 
     async function fetchAllData() {
@@ -524,10 +591,13 @@
             if (stepIds) {
                 stepIds.forEach(stepId => {
                     if (filteredStepId && String(stepId) !== filteredStepId) return;
-
+                    
+                    let taskId = `${order.id_order}_${stepId}`; // Unique ID สำหรับลาก
                     let oStep = rawData.orderSteps.find(os => os.id_order === order.id_order && os.id_step === stepId);
-                    let startDateStr = (oStep && oStep.start_date) ? oStep.start_date : order.start_date;
-                    let endDateStr = (oStep && oStep.end_date) ? oStep.end_date : order.end_date;
+                    
+                    // ดึงข้อมูลวันที่ (ถ้ามีการแก้ไขในระบบจำลอง (localEdits) ให้ใช้อันนั้นก่อน)
+                    let startDateStr = (localEdits[taskId] && localEdits[taskId].startDate) ? localEdits[taskId].startDate : ((oStep && oStep.start_date) ? oStep.start_date : order.start_date);
+                    let endDateStr = (localEdits[taskId] && localEdits[taskId].endDate) ? localEdits[taskId].endDate : ((oStep && oStep.end_date) ? oStep.end_date : order.end_date);
 
                     if(!startDateStr || !endDateStr) return;
 
@@ -543,10 +613,12 @@
                         }
                     });
 
-                    // ดึงรหัสสินค้า
                     let wCode = maps.workIdToCode[order.id_work] ? String(maps.workIdToCode[order.id_work]).trim() : (order.id_work || '-');
 
                     rowsData.push({
+                        taskId: taskId,
+                        order_id: order.id_order,
+                        step_id: stepId,
                         order_no: order.order_no || 'N/A',
                         work_code: wCode,
                         step_name: getStepAbbr(maps.stepIdToName[stepId]) || 'Unknown',
@@ -567,36 +639,42 @@
         minDate.setDate(minDate.getDate() - 1);
         maxDate.setDate(maxDate.getDate() + 1);
         
+        currentMinDate = new Date(minDate); // เก็บไว้คำนวณตอนลาก
+
         let dateHeaders = [];
         let curr = new Date(minDate);
         while (curr <= maxDate) {
             dateHeaders.push(new Date(curr));
             curr.setDate(curr.getDate() + 1);
         }
+        currentTotalDays = dateHeaders.length;
 
-        // Thead
+        // Thead (เพิ่มขนาด Column วันที่ให้ตายตัว)
         let headHtml = `<tr>
-            <th>ขั้นตอน <span style="font-weight:normal; font-size:0.65rem;">[Order]</span></th>
-            <th>รหัสชิ้นงาน</th>
-            <th>ผลิตได้ / ยอดสั่ง / %</th>`;
-        dateHeaders.forEach(d => { headHtml += `<th style="min-width: 40px;">${d.getDate()}/${d.getMonth()+1}</th>`; });
+            <th style="min-width: 170px;">ขั้นตอน <span style="font-weight:normal; font-size:0.65rem;">[Order]</span></th>
+            <th style="min-width: 130px;">รหัสชิ้นงาน</th>
+            <th style="min-width: 220px;">ผลิตได้ / ยอดสั่ง / %</th>`;
+        dateHeaders.forEach(d => { 
+            headHtml += `<th class="date-header">${d.getDate()}/${d.getMonth()+1}</th>`; 
+        });
         headHtml += `</tr>`;
         thead.innerHTML = headHtml;
 
-        // Tbody
+        // Tbody (เปลี่ยนการ Render Timeline Area เป็น Absolute Layout)
         let bodyHtml = '';
         rowsData.forEach(row => {
             const offsetDays = Math.ceil(Math.abs(row.startDate - minDate) / 86400000);
             const durationDays = Math.ceil(Math.abs(row.endDate - row.startDate) / 86400000) + 1; 
-            const remainingDays = dateHeaders.length - offsetDays - durationDays; 
 
             let realPercent = (row.target > 0) ? (row.actual / row.target) * 100 : 0;
             let percentWidth = Math.min(realPercent, 100); 
             let textClass = percentWidth < 20 ? "low-percent" : "";
 
+            let isEditing = editingTaskId === row.taskId;
+
             bodyHtml += `<tr>`;
             
-            // Col 1: ขั้นตอน [Order]
+            // Col 1, 2, 3 (Sticky Data)
             bodyHtml += `
                 <td style="padding: 0 8px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; height: 100%;">
@@ -604,17 +682,9 @@
                         <span class="step-order">[${row.order_no}]</span>
                     </div>
                 </td>
-            `;
-
-            // Col 2: รหัสชิ้นงาน (Work Code)
-            bodyHtml += `
                 <td style="padding: 0 8px;">
                     <span class="work-code-text">${row.work_code}</span>
                 </td>
-            `;
-
-            // Col 3: ผลิตได้ / ยอดสั่ง / % (ล็อกตำแหน่งตายตัว)
-            bodyHtml += `
                 <td style="padding: 0; font-family: 'Courier New', monospace; font-size: 0.8rem; letter-spacing: -0.5px;">
                     <div style="display: grid; grid-template-columns: 60px 15px 60px 15px 50px; justify-content: center; align-items: center; width: 100%; height: 100%;">
                         <span style="color: var(--neon-green); font-weight: bold; text-align: right;">${row.actual.toLocaleString()}</span>
@@ -626,30 +696,210 @@
                 </td>
             `;
 
-            // Offset ว่าง
-            if (offsetDays > 0) bodyHtml += `<td colspan="${offsetDays}"></td>`;
-
-            // Bar 
-            if (durationDays > 0) {
-                bodyHtml += `
-                    <td colspan="${durationDays}" style="padding: 2px;">
-                        <div class="gantt-bar-wrapper">
-                            <div class="bar-planned"></div>
-                            <div class="bar-actual" style="width: ${percentWidth}%;"></div>
-                            <div class="bar-text ${textClass}">${percentWidth.toFixed(0)}%</div>
-                        </div>
-                    </td>
-                `;
-            }
-
-            // Remaining ว่าง
-            if (remainingDays > 0) bodyHtml += `<td colspan="${remainingDays}"></td>`;
+            // Timeline Area (Absolute Container Overlay)
+            let totalGridWidth = currentTotalDays * CELL_WIDTH;
+            bodyHtml += `
+                <td colspan="${currentTotalDays}" style="padding: 0; min-width: ${totalGridWidth}px; max-width: ${totalGridWidth}px; position: relative;">
+                    <!-- พื้นหลังตารางตารางแนวตั้งแบบเนียน ๆ -->
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
+                                background: repeating-linear-gradient(to right, transparent, transparent ${CELL_WIDTH - 1}px, rgba(23,99,60,0.4) ${CELL_WIDTH - 1}px, rgba(23,99,60,0.4) ${CELL_WIDTH}px);">
+                    </div>
+                    
+                    <!-- Gantt Bar -->
+                    <div class="gantt-bar-wrapper ${isEditing ? 'is-editing' : ''}" 
+                         data-taskid="${row.taskId}"
+                         ondblclick="startEditing('${row.taskId}')"
+                         style="left: ${offsetDays * CELL_WIDTH}px; width: ${durationDays * CELL_WIDTH}px;">
+                        
+                        <div class="bar-planned"></div>
+                        <div class="bar-actual" style="width: ${percentWidth}%;"></div>
+                        <div class="bar-text ${textClass}">${percentWidth.toFixed(0)}%</div>
+                        
+                        ${isEditing ? `
+                            <div class="resize-handle resize-handle-left" data-action="resize-left"></div>
+                            <div class="resize-handle resize-handle-right" data-action="resize-right"></div>
+                        ` : ''}
+                    </div>
+                </td>
+            `;
             
             bodyHtml += `</tr>`;
         });
 
         tbody.innerHTML = bodyHtml;
     }
+
+    // --- Interactive Drag and Drop Logic ---
+
+    function startEditing(taskId) {
+        editingTaskId = taskId;
+        applyFilters(); // Re-render to show edit handles
+        document.getElementById('save-bar').classList.add('show');
+    }
+
+    function cancelEdits() {
+        editingTaskId = null;
+        localEdits = {}; // ล้างค่าที่จำไว้
+        applyFilters();
+        document.getElementById('save-bar').classList.remove('show');
+    }
+
+    async function saveEdits() {
+        if (Object.keys(localEdits).length === 0) {
+            cancelEdits();
+            return;
+        }
+
+        const btnSave = document.getElementById('btn-save-edits');
+        const originalText = btnSave.innerHTML;
+        btnSave.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-1"></i> กำลังบันทึก...`;
+        btnSave.disabled = true;
+
+        try {
+            // วนลูปส่ง Request ไปอัปเดตข้อมูลทีละรายการที่ถูกแก้ไข
+            const updatePromises = Object.entries(localEdits).map(async ([taskId, dates]) => {
+                // taskId มีรูปแบบ "idOrder_idStep" เช่น "1_5"
+                const [orderIdStr, stepIdStr] = taskId.split('_');
+                const orderId = parseInt(orderIdStr);
+                const stepId = parseInt(stepIdStr);
+
+                // ยิง API แบบ PATCH เพื่ออัปเดตข้อมูล
+                const url = `${SUPABASE_URL}/order_steps?id_order=eq.${orderId}&id_step=eq.${stepId}`;
+                const payload = {
+                    start_date: dates.startDate,
+                    end_date: dates.endDate
+                };
+
+                const response = await fetch(url, {
+                    method: 'PATCH',
+                    headers: headers,
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to update Task ID: ${taskId}`);
+                }
+            });
+
+            await Promise.all(updatePromises);
+            
+            // เมื่อสำเร็จ
+            alert('บันทึกข้อมูลวันที่สำเร็จแล้ว');
+            
+            editingTaskId = null;
+            localEdits = {}; // เคลียร์ของเก่าทิ้ง
+            document.getElementById('save-bar').classList.remove('show');
+            
+            // เรียกดึงข้อมูลใหม่จากฐานข้อมูลเพื่อวาดตารางใหม่
+            await fetchAllData(); 
+            
+        } catch (error) {
+            console.error("Error saving edits:", error);
+            alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง');
+        } finally {
+            btnSave.innerHTML = originalText;
+            btnSave.disabled = false;
+        }
+    }
+
+    function setupDragAndDrop() {
+        const container = document.getElementById('ganttBody');
+        let isDragging = false;
+        let currentAction = null; // 'move', 'resize-left', 'resize-right'
+        let activeElement = null;
+        let startMouseX = 0;
+        let initialLeft = 0;
+        let initialWidth = 0;
+        let activeTaskId = null;
+
+        container.addEventListener('mousedown', (e) => {
+            if (!editingTaskId) return; 
+            
+            const wrapper = e.target.closest('.is-editing');
+            if (!wrapper) return;
+
+            activeElement = wrapper;
+            activeTaskId = wrapper.dataset.taskid;
+            isDragging = true;
+            startMouseX = e.clientX;
+            
+            initialLeft = parseInt(wrapper.style.left) || 0;
+            initialWidth = parseInt(wrapper.style.width) || 0;
+
+            if (e.target.classList.contains('resize-handle-left')) {
+                currentAction = 'resize-left';
+            } else if (e.target.classList.contains('resize-handle-right')) {
+                currentAction = 'resize-right';
+            } else {
+                currentAction = 'move';
+            }
+            
+            document.body.style.userSelect = 'none'; // Prevent text highlighting
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging || !activeElement) return;
+
+            const dx = e.clientX - startMouseX;
+            const maxAllowedWidth = currentTotalDays * CELL_WIDTH;
+            
+            if (currentAction === 'move') {
+                let newLeft = initialLeft + dx;
+                newLeft = Math.max(0, Math.min(newLeft, maxAllowedWidth - initialWidth));
+                activeElement.style.left = `${newLeft}px`;
+            } 
+            else if (currentAction === 'resize-left') {
+                let newLeft = initialLeft + dx;
+                let newWidth = initialWidth - dx;
+                
+                if (newWidth >= CELL_WIDTH && newLeft >= 0) {
+                    activeElement.style.left = `${newLeft}px`;
+                    activeElement.style.width = `${newWidth}px`;
+                }
+            } 
+            else if (currentAction === 'resize-right') {
+                let newWidth = initialWidth + dx;
+                if (newWidth >= CELL_WIDTH && (initialLeft + newWidth) <= maxAllowedWidth) {
+                    activeElement.style.width = `${newWidth}px`;
+                }
+            }
+        });
+
+        document.addEventListener('mouseup', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            document.body.style.userSelect = '';
+
+            // Snap เข้า Grid ช่องละ 40px
+            const currentLeft = parseInt(activeElement.style.left);
+            const currentWidth = parseInt(activeElement.style.width);
+            
+            const snappedOffset = Math.round(currentLeft / CELL_WIDTH);
+            const snappedDuration = Math.max(1, Math.round(currentWidth / CELL_WIDTH));
+            
+            activeElement.style.left = `${snappedOffset * CELL_WIDTH}px`;
+            activeElement.style.width = `${snappedDuration * CELL_WIDTH}px`;
+
+            // คำนวณวันที่ใหม่
+            if (activeTaskId && currentMinDate) {
+                let newStartDate = new Date(currentMinDate);
+                newStartDate.setDate(currentMinDate.getDate() + snappedOffset);
+                
+                let newEndDate = new Date(newStartDate);
+                newEndDate.setDate(newStartDate.getDate() + snappedDuration - 1);
+                
+                // เก็บลง Local Edits (format เป็น YYYY-MM-DD เพื่อเอาไว้ส่ง API)
+                localEdits[activeTaskId] = {
+                    startDate: newStartDate.toISOString().split('T')[0],
+                    endDate: newEndDate.toISOString().split('T')[0]
+                };
+            }
+
+            activeElement = null;
+            currentAction = null;
+        });
+    }
+
 </script>
 
 </body>
