@@ -659,12 +659,16 @@
         });
 
         // จัดเรียงข้อมูล: 1. ให้ใบสั่งเดียวกันเกาะกลุ่มกันไว้ก่อน 2. เรียงตามวันที่เริ่ม 3. เรียงตามชื่อขั้นตอน
+       // จัดเรียงข้อมูล: 1. เรียงตามเลขที่ใบสั่งให้อยู่ติดกัน (order_no) 2. เรียงตามวันที่เริ่ม 3. เรียงตามชื่อขั้นตอน
         rowsData.sort((a, b) => {
             let compOrder = String(a.order_no).localeCompare(String(b.order_no), 'th', { numeric: true });
             if (compOrder !== 0) return compOrder;
+            
             if (a.startDate.getTime() !== b.startDate.getTime()) {
                 return a.startDate - b.startDate;
             }
+            return a.step_name.localeCompare(b.step_name);
+        });
             return a.step_name.localeCompare(b.step_name);
         });
 
