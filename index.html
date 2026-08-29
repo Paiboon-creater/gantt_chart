@@ -196,20 +196,19 @@
             left: 0;
             background-color: #06170e;
             z-index: 11;
-            /* ปรับขนาดให้กว้างขึ้นนิดหน่อยเพื่อรองรับการจัดซ้าย-ขวา */
-            min-width: 200px;
-            max-width: 200px;
+            min-width: 190px;
+            max-width: 190px;
             border-right: 1px solid var(--border-dim);
         }
 
         .gantt-table th:nth-child(2), .gantt-table td:nth-child(2) {
             position: sticky;
-            left: 200px; /* ต้องเท่ากับความกว้างของคอลัมน์แรกพอดี */
+            left: 190px; /* เท่ากับความกว้างคอลัมน์แรก */
             background-color: #06170e;
             z-index: 11;
-            text-align: center; /* จัดกึ่งกลางให้อ่านง่าย */
-            min-width: 200px;
-            max-width: 200px;
+            text-align: center;
+            min-width: 220px; /* ขยายเล็กน้อยเพื่อรองรับ Grid 5 คอลัมน์ */
+            max-width: 220px;
             border-right: 2px solid var(--border-dim);
         }
 
@@ -329,9 +328,8 @@
             <table class="gantt-table" id="ganttTable">
                 <thead id="ganttHead">
                     <tr>
-                        <!-- เปลี่ยนหัวคอลัมน์ -->
-                        <th style="min-width: 200px;">ขั้นตอน [Order]</th>
-                        <th style="min-width: 200px;">ผลิตได้ / ยอดสั่ง / %</th>
+                        <th style="min-width: 190px;">ขั้นตอน [Order]</th>
+                        <th style="min-width: 220px;">ผลิตได้ / ยอดสั่ง / %</th>
                         <th>...</th>
                     </tr>
                 </thead>
@@ -419,8 +417,8 @@
     function populateDropdowns(fOrder = '', fPo = '', fWork = '', fStep = '') {
         const isMatch = (item, orderVal, poVal, workVal, stepVal) => {
             let wCode = maps.workIdToCode[item.id_work] ? String(maps.workIdToCode[item.id_work]).trim() : String(item.id_work);
-            let matchOrder = !orderVal || (item.order_no && item.order_no.trim() === orderVal);
-            let matchPo = !poVal || (item.po_no && item.po_no.trim() === poVal);
+            let matchOrder = !orderVal || (item.order_no && String(item.order_no).trim() === orderVal);
+            let matchPo = !poVal || (item.po_no && String(item.po_no).trim() === poVal);
             let matchWork = !workVal || wCode === workVal;
             let matchStep = true;
             if(stepVal) {
@@ -435,6 +433,7 @@
         const validForWork = rawData.orders.filter(i => isMatch(i, fOrder, fPo, '', fStep));
         const validForStep = rawData.orders.filter(i => isMatch(i, fOrder, fPo, fWork, ''));
 
+        // ใช้ String(...).trim() เพื่อแก้ปัญหาตัวซ้ำ
         const orders = [...new Set(validForOrder.map(i => i.order_no ? String(i.order_no).trim() : null).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'th', {numeric:true}));
         const pos = [...new Set(validForPo.map(i => i.po_no ? String(i.po_no).trim() : null).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'th', {numeric:true}));
         const works = [...new Set(validForWork.map(i => (maps.workIdToCode[i.id_work] || i.id_work) ? String(maps.workIdToCode[i.id_work] || i.id_work).trim() : null).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'th', {numeric:true}));
@@ -469,8 +468,8 @@
 
         let filteredOrders = rawData.orders.filter(o => {
             let wCode = maps.workIdToCode[o.id_work] ? String(maps.workIdToCode[o.id_work]).trim() : String(o.id_work);
-            let matchOrder = !fOrder || (o.order_no && o.order_no.trim() === fOrder);
-            let matchPo = !fPo || (o.po_no && o.po_no.trim() === fPo);
+            let matchOrder = !fOrder || (o.order_no && String(o.order_no).trim() === fOrder);
+            let matchPo = !fPo || (o.po_no && String(o.po_no).trim() === fPo);
             let matchWork = !fWork || wCode === fWork;
             let matchStep = !fStep || (maps.workIdToStepIds[o.id_work] && maps.workIdToStepIds[o.id_work].has(parseInt(fStep)));
             return matchOrder && matchPo && matchWork && matchStep;
@@ -489,7 +488,7 @@
         const tbody = document.getElementById('ganttBody');
 
         if(orders.length === 0) {
-            thead.innerHTML = `<tr><th style="min-width:200px;">ขั้นตอน [Order]</th><th style="min-width:200px;">ผลิตได้ / ยอดสั่ง / %</th></tr>`;
+            thead.innerHTML = `<tr><th style="min-width:190px;">ขั้นตอน [Order]</th><th style="min-width:220px;">ผลิตได้ / ยอดสั่ง / %</th></tr>`;
             tbody.innerHTML = `<tr><td colspan="2" class="text-center py-4 text-muted">ไม่พบข้อมูลตามเงื่อนไข</td></tr>`;
             return;
         }
@@ -582,14 +581,16 @@
                 </td>
             `;
 
-            // Col 2: ผลิตได้ / ยอดสั่ง / %
+            // Col 2: ล็อกความกว้างตายตัวด้วย CSS Grid เพื่อให้เครื่องหมายและหลักหน่วยตรงกัน 100%
             bodyHtml += `
-                <td style="font-family: 'Courier New', monospace; font-size: 0.8rem; letter-spacing: -0.5px;">
-                    <span style="color: var(--neon-green); font-weight: bold;">${row.actual.toLocaleString()}</span>
-                    <span style="color: var(--text-muted); margin: 0 4px;">/</span>
-                    <span style="color: #ffffff;">${row.target.toLocaleString()}</span>
-                    <span style="color: var(--text-muted); margin: 0 4px;">/</span>
-                    <span style="color: var(--neon-yellow);">${realPercent.toFixed(1)}%</span>
+                <td style="padding: 0; font-family: 'Courier New', monospace; font-size: 0.8rem; letter-spacing: -0.5px;">
+                    <div style="display: grid; grid-template-columns: 60px 15px 60px 15px 50px; justify-content: center; align-items: center; width: 100%; height: 100%;">
+                        <span style="color: var(--neon-green); font-weight: bold; text-align: right;">${row.actual.toLocaleString()}</span>
+                        <span style="color: var(--text-muted); text-align: center;">/</span>
+                        <span style="color: #ffffff; text-align: right;">${row.target.toLocaleString()}</span>
+                        <span style="color: var(--text-muted); text-align: center;">/</span>
+                        <span style="color: var(--neon-yellow); text-align: right;">${realPercent.toFixed(1)}%</span>
+                    </div>
                 </td>
             `;
 
