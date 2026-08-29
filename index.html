@@ -26,7 +26,7 @@
             --table-bg: #071910;
             --bar-planned: #113a24;
             --bar-actual: #00ff88;
-            --cell-width: 40px;
+            --cell-width: 28px; /* ลดลง 30% จาก 40px เหลือ 28px */
         }
 
         body {
@@ -153,6 +153,7 @@
         .legend-item { display: flex; align-items: center; gap: 4px; }
         .box-planned { width: 10px; height: 10px; background: var(--bar-planned); border: 1px solid var(--border-dim); }
         .box-actual { width: 10px; height: 10px; background: var(--bar-actual); }
+        .box-custom { width: 10px; height: 10px; background: #ff00ff; border: 1px solid #fff; }
 
         .gantt-container {
             width: 100%;
@@ -197,7 +198,7 @@
             padding: 4px 0 !important;
         }
 
-        /* --- การตั้งค่า Sticky คอลัมน์ที่ 1 ถึง 5 ด้านหน้า --- */
+        /* --- Sticky Columns --- */
         .gantt-table th:nth-child(1), .gantt-table td:nth-child(1) {
             position: sticky; left: 0; background-color: #06170e; z-index: 11;
             min-width: 150px; max-width: 150px; border-right: 1px solid var(--border-dim);
@@ -379,6 +380,7 @@
             <div class="gantt-legend">
                 <div class="legend-item"><div class="box-planned"></div> แผนงาน (Plan)</div>
                 <div class="legend-item"><div class="box-actual"></div> ผลิตจริง (Actual)</div>
+                <div class="legend-item"><div class="box-custom"></div> สีที่กำหนดเอง (คลิกขวาเปลี่ยนสี)</div>
             </div>
         </div>
         
@@ -445,8 +447,9 @@
     let rawData = { orders: [], workItems: [], steps: [], targets: [], daily: [], orderSteps: [] };
     let maps = { workIdToCode: {}, stepIdToName: {}, targetIdToStepId: {}, workIdToStepIds: {} };
     
-    const CELL_WIDTH = 40;
+    const CELL_WIDTH = 28; // ลดลง 30% จาก 40px
     let localEdits = {}; 
+    let customColors = JSON.parse(localStorage.getItem('jaguar_custom_colors') || '{}'); // เก็บสีที่ผู้ใช้ถมเอง
     let editingTaskId = null; 
     let currentMinDate = null; 
     let currentTotalDays = 0; 
@@ -639,6 +642,16 @@
             }
         });
 
+        // จัดเรียงข้อมูล: 1. ให้ใบสั่งเดียวกันเกาะกลุ่มกันไว้ก่อน 2. เรียงตามวันที่เริ่ม 3. เรียงตามเลขที่ใบสั่ง
+        rowsData.sort((a, b) => {
+            let compOrder = String(a.order_no).localeCompare(String(b.order_no), 'th', { numeric: true });
+            if (compOrder !== 0) return compOrder;
+            if (a.startDate.getTime() !== b.startDate.getTime()) {
+                return a.startDate - b.startDate;
+            }
+            return a.taskId.localeCompare(b.taskId);
+        });
+
         if (rowsData.length === 0) {
             tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">ไม่มีข้อมูลวันที่สำหรับแผนงานนี้</td></tr>`;
             return;
@@ -681,10 +694,11 @@
             let textClass = percentWidth < 20 ? "low-percent" : "";
 
             let isEditing = editingTaskId === row.taskId;
+            let customBg = customColors[row.taskId] || ''; // สีที่ผู้ใช้กำหนดเอง
 
             bodyHtml += `<tr>`;
             
-            // Col 1, 2, 3, 4, 5 (Sticky Data รวมวันที่เริ่มและวันที่จบด้านหน้า)
+            // Col 1, 2, 3, 4, 5 (Sticky Data)
             bodyHtml += `
                 <td style="padding: 0 8px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; height: 100%;">
@@ -723,9 +737,11 @@
                     <div class="gantt-bar-wrapper ${isEditing ? 'is-editing' : ''}" 
                          data-taskid="${row.taskId}"
                          ondblclick="startEditing('${row.taskId}')"
-                         style="left: ${offsetDays * CELL_WIDTH}px; width: ${durationDays * CELL_WIDTH}px;">
+                         oncontextmenu="changeCustomColor(event, '${row.taskId}')"
+                         style="left: ${offsetDays * CELL_WIDTH}px; width: ${durationDays * CELL_WIDTH}px; ${customBg ? 'background-color: ' + customBg + ';' : ''}"
+                         title="ดับเบิลคลิกเพื่อแก้ไขช่วงเวลา | คลิกขวาเพื่อเปลี่ยนสีแถบ (จุดสังเกตส่งของ)">
                         
-                        <div class="bar-planned"></div>
+                        <div class="bar-planned" ${customBg ? 'style="background-color: ' + customBg + ';"' : ''}></div>
                         <div class="bar-actual" style="width: ${percentWidth}%;"></div>
                         <div class="bar-text ${textClass}">${percentWidth.toFixed(0)}%</div>
                         
@@ -741,6 +757,24 @@
         });
 
         tbody.innerHTML = bodyHtml;
+    }
+
+    // ฟังก์ชันคลิกขวาเพื่อเปลี่ยนสีแถบ (ถมสีเองเป็นจุดสังเกตวันส่งของ)
+    function changeCustomColor(e, taskId) {
+        e.preventDefault(); // ป้องกันเมนูคลิกขวาปกติของเบราว์เซอร์
+        let colors = ['', '#ff3366', '#f5a623', '#00ff88', '#00ffff', '#ff00ff', '#ffffff'];
+        let currentColor = customColors[taskId] || '';
+        let nextIndex = (colors.indexOf(currentColor) + 1) % colors.length;
+        let newColor = colors[nextIndex];
+
+        if (newColor === '') {
+            delete customColors[taskId];
+        } else {
+            customColors[taskId] = newColor;
+        }
+
+        localStorage.setItem('jaguar_custom_colors', JSON.stringify(customColors));
+        applyFilters(); // รีเฟรชตารางแสดงสีใหม่
     }
 
     function startEditing(taskId) {
