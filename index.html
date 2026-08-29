@@ -807,59 +807,66 @@
         document.getElementById('save-bar').classList.remove('show');
     }
 
-    async function saveEdits() {
-        if (Object.keys(localEdits).length === 0) {
-            cancelEdits();
-            return;
-        }
+   async function saveEdits() {
+    if (Object.keys(localEdits).length === 0) {
+        cancelEdits();
+        return;
+    }
 
-        const btnSave = document.getElementById('btn-save-edits');
-        const originalText = btnSave.innerHTML;
-        btnSave.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-1"></i> กำลังบันทึก...`;
-        btnSave.disabled = true;
+    const btnSave = document.getElementById('btn-save-edits');
+    const originalText = btnSave.innerHTML;
+    btnSave.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-1"></i> กำลังบันทึก...`;
+    btnSave.disabled = true;
 
-        try {
-            const updatePromises = Object.entries(localEdits).map(async ([taskId, dates]) => {
-                const [orderIdStr, stepIdStr] = taskId.split('_');
-                const orderId = parseInt(orderIdStr);
-                const stepId = parseInt(stepIdStr);
+    try {
+        const updatePromises = Object.entries(localEdits).map(async ([taskId, dates]) => {
+            const [orderIdStr, stepIdStr] = taskId.split('_');
+            const orderId = parseInt(orderIdStr);
+            const stepId = parseInt(stepIdStr);
 
-                const url = `${SUPABASE_URL}/order_steps?id_order=eq.${orderId}&id_step=eq.${stepId}`;
-                const payload = {
-                    start_date: dates.startDate,
-                    end_date: dates.endDate
-                };
+            // ใช้ Upsert (POST พร้อมระบุ Prefer: resolution=merge-duplicates)
+            // วิธีนี้จะทำการ Insert ถ้ายังไม่มี หรือ Update ถ้ามีอยู่แล้ว
+            const url = `${SUPABASE_URL}/order_steps`;
+            const payload = {
+                id_order: orderId,
+                id_step: stepId,
+                start_date: dates.startDate,
+                end_date: dates.endDate
+            };
 
-                const response = await fetch(url, {
-                    method: 'PATCH',
-                    headers: headers,
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Failed to update Task ID: ${taskId}`);
-                }
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    ...headers,
+                    "Prefer": "resolution=merge-duplicates"
+                },
+                body: JSON.stringify(payload)
             });
 
-            await Promise.all(updatePromises);
-            
-            alert('บันทึกข้อมูลวันที่สำเร็จแล้ว');
-            
-            editingTaskId = null;
-            isUserEditing = false;
-            localEdits = {}; 
-            document.getElementById('save-bar').classList.remove('show');
-            
-            await fetchAllData(); 
-            
-        } catch (error) {
-            console.error("Error saving edits:", error);
-            alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง');
-        } finally {
-            btnSave.innerHTML = originalText;
-            btnSave.disabled = false;
-        }
+            if (!response.ok) {
+                throw new Error(`Failed to save Task ID: ${taskId}`);
+            }
+        });
+
+        await Promise.all(updatePromises);
+        
+        alert('บันทึกข้อมูลวันที่สำเร็จแล้ว');
+        
+        editingTaskId = null;
+        isUserEditing = false;
+        localEdits = {}; 
+        document.getElementById('save-bar').classList.remove('show');
+        
+        await fetchAllData(); 
+        
+    } catch (error) {
+        console.error("Error saving edits:", error);
+        alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง');
+    } finally {
+        btnSave.innerHTML = originalText;
+        btnSave.disabled = false;
     }
+}
 
     function setupDragAndDrop() {
         const container = document.getElementById('ganttBody');
