@@ -31,9 +31,9 @@
         body {
             background-color: var(--bg-dark);
             color: var(--text-main);
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 15px;
+            padding: 10px 15px;
             overflow-x: hidden;
             -webkit-text-size-adjust: 100%;
         }
@@ -52,12 +52,11 @@
         .dashboard-container {
             width: 100%;
             background: var(--panel-bg);
-            border: 1px solid var(--border-neon);
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 0 25px var(--neon-glow);
+            border: 1px solid var(--border-dim);
+            border-radius: 6px;
+            padding: 12px;
             box-sizing: border-box;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         /* Filter Section */
@@ -65,118 +64,103 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 1px dashed var(--border-dim);
-            padding-bottom: 10px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border-dim);
+            padding-bottom: 8px;
         }
 
         .filter-title {
             font-weight: bold;
             color: var(--neon-green);
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
             gap: 8px;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .sync-status {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--neon-green);
             display: flex;
             align-items: center;
             gap: 6px;
             background: rgba(0, 255, 136, 0.1);
-            padding: 4px 10px;
-            border-radius: 20px;
+            padding: 3px 8px;
+            border-radius: 4px;
             border: 1px solid var(--neon-green);
         }
 
         .filter-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
         }
 
         .filter-group label {
             display: block;
-            font-size: 0.75rem;
-            font-weight: bold;
+            font-size: 0.7rem;
             color: var(--text-label);
-            margin-bottom: 6px;
-            text-transform: uppercase;
+            margin-bottom: 4px;
         }
 
         .form-select-stock {
             width: 100%;
-            padding: 8px 12px;
+            padding: 4px 8px;
             background-color: var(--input-bg);
             border: 1px solid var(--border-dim);
             color: var(--input-text);
-            border-radius: 6px;
-            font-size: 0.9rem;
-            font-family: 'Courier New', Courier, monospace;
+            border-radius: 4px;
+            font-size: 0.8rem;
             outline: none;
-            transition: all 0.2s;
-        }
-
-        .form-select-stock:focus {
-            background-color: var(--bg-dark);
-            border-color: var(--neon-green);
-            box-shadow: 0 0 10px var(--neon-glow);
         }
 
         .btn-reset {
             background: #212529;
             color: #ced4da;
             border: 1px solid #495057;
-            padding: 6px 14px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
             cursor: pointer;
-            transition: all 0.2s;
         }
-        .btn-reset:hover { background: #343a40; color: #fff; border-color: #ced4da; }
 
         /* Gantt Chart Area */
         .gantt-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .gantt-title {
-            font-size: 1.1rem;
+            font-size: 0.85rem;
             font-weight: bold;
             color: var(--neon-yellow);
-            text-transform: uppercase;
         }
 
         .gantt-legend {
             display: flex;
-            gap: 15px;
-            font-size: 0.8rem;
+            gap: 12px;
+            font-size: 0.7rem;
             color: var(--text-muted);
-            border: 1px solid var(--border-dim);
-            padding: 6px 12px;
-            border-radius: 6px;
-            background: var(--table-bg);
         }
 
-        .legend-item { display: flex; align-items: center; gap: 6px; }
-        .box-planned { width: 12px; height: 12px; background: var(--bar-planned); border: 1px solid var(--border-dim); }
-        .box-actual { width: 12px; height: 12px; background: var(--bar-actual); box-shadow: 0 0 5px var(--neon-green); }
+        .legend-item { display: flex; align-items: center; gap: 4px; }
+        .box-planned { width: 10px; height: 10px; background: var(--bar-planned); border: 1px solid var(--border-dim); }
+        .box-actual { width: 10px; height: 10px; background: var(--bar-actual); }
 
         .gantt-container {
             width: 100%;
             overflow-x: auto;
             border: 1px solid var(--border-dim);
-            border-radius: 8px;
             background: var(--table-bg);
-            max-height: 65vh;
+            max-height: 70vh;
             position: relative;
         }
 
@@ -187,65 +171,64 @@
         }
 
         .gantt-table th, .gantt-table td {
-            border: 1px solid var(--border-dim);
-            padding: 10px;
+            border: 1px solid rgba(23, 99, 60, 0.4);
+            padding: 4px 6px;
             text-align: center;
             color: var(--text-main);
+            font-size: 0.75rem;
+            height: 24px;
+            white-space: nowrap;
         }
 
         .gantt-table th {
             background-color: #05140c;
-            color: var(--neon-green);
-            font-size: 0.85rem;
+            color: #a7e0c4;
+            font-size: 0.7rem;
             font-weight: bold;
             position: sticky;
             top: 0;
             z-index: 10;
-            text-transform: uppercase;
         }
 
         /* ----- การตั้งค่า Sticky คอลัมน์ที่ 1 และ 2 ----- */
-        /* คอลัมน์ที่ 1 (ชื่อขั้นตอน) */
         .gantt-table th:nth-child(1), .gantt-table td:nth-child(1) {
             position: sticky;
             left: 0;
-            background-color: var(--table-bg);
+            background-color: #06170e;
             z-index: 11;
-            text-align: left;
-            min-width: 140px;
-            max-width: 140px;
+            /* ปรับขนาดให้กว้างขึ้นนิดหน่อยเพื่อรองรับการจัดซ้าย-ขวา */
+            min-width: 200px;
+            max-width: 200px;
             border-right: 1px solid var(--border-dim);
         }
 
-        /* คอลัมน์ที่ 2 (สถานะยอดผลิต) */
         .gantt-table th:nth-child(2), .gantt-table td:nth-child(2) {
             position: sticky;
-            left: 140px; /* ต้องเท่ากับความกว้างของคอลัมน์แรก */
-            background-color: var(--table-bg);
+            left: 200px; /* ต้องเท่ากับความกว้างของคอลัมน์แรกพอดี */
+            background-color: #06170e;
             z-index: 11;
-            text-align: center;
-            min-width: 220px;
-            max-width: 220px;
-            border-right: 2px solid var(--neon-green);
+            text-align: center; /* จัดกึ่งกลางให้อ่านง่าย */
+            min-width: 200px;
+            max-width: 200px;
+            border-right: 2px solid var(--border-dim);
         }
 
-        /* ให้หัวตารางของ 2 คอลัมน์แรกอยู่บนสุด (z-index สูงสุด) */
         .gantt-table thead th:nth-child(1), .gantt-table thead th:nth-child(2) {
             z-index: 12;
-            background-color: #05140c;
+            background-color: #030806;
+            color: var(--neon-green);
         }
 
-        /* เอฟเฟกต์ Hover ของตาราง */
-        tr:hover td { background-color: rgba(0, 255, 136, 0.05); }
+        tr:hover td { background-color: rgba(0, 255, 136, 0.08); }
         tr:hover td:nth-child(1), tr:hover td:nth-child(2) { background-color: #0b2e1c; }
 
-        .step-name { font-weight: bold; color: var(--text-main); font-size: 0.95rem; margin-bottom: 4px;}
-        .step-order { font-size: 0.75rem; color: var(--neon-yellow); font-weight: bold; }
+        .step-name { font-weight: bold; color: var(--text-main); }
+        .step-order { color: var(--neon-yellow); font-size: 0.7rem; }
 
         /* แถบกราฟ Gantt */
         .gantt-bar-wrapper {
             position: relative;
-            height: 30px;
+            height: 14px;
             width: 100%;
             background-color: transparent;
             display: flex;
@@ -259,8 +242,7 @@
             height: 100%;
             width: 100%;
             background-color: var(--bar-planned);
-            border: 1px dashed var(--border-dim);
-            border-radius: 4px;
+            border-radius: 2px;
             z-index: 1;
         }
 
@@ -270,10 +252,9 @@
             top: 0;
             height: 100%;
             background-color: var(--bar-actual);
-            border-radius: 4px;
+            border-radius: 2px;
             z-index: 2;
             transition: width 0.5s ease-in-out;
-            box-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
         }
 
         .bar-text {
@@ -282,71 +263,65 @@
             text-align: center;
             z-index: 3;
             color: #000;
-            font-size: 0.8rem;
+            font-size: 0.65rem;
             font-weight: bold;
-            line-height: 30px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            padding: 0 5px;
+            line-height: 14px;
         }
         
         .bar-text.low-percent {
-            color: var(--neon-green);
-            text-shadow: 1px 1px 2px #000;
+            color: var(--text-main);
+            text-shadow: 1px 1px 1px #000;
         }
     </style>
 </head>
 <body>
 
-    <!-- ตัวกรองข้อมูล -->
     <div class="dashboard-container">
         <div class="filter-header">
             <div class="filter-title">
-                <i class="fa-solid fa-chart-gantt"></i> JAGUAR GANTT CHART // STOCK BOARD
+                <i class="fa-solid fa-bars-progress"></i> JAGUAR GANTT CHART
             </div>
-            <div style="display: flex; gap: 15px; align-items: center;">
+            <div style="display: flex; gap: 10px; align-items: center;">
                 <div class="sync-status" id="syncIndicator">
-                    <i class="fa-solid fa-circle-check"></i> LIVE SYNC
+                    <i class="fa-solid fa-circle-check"></i> SYNC
                 </div>
-                <button class="btn-reset" onclick="clearFilters()"><i class="fa-solid fa-rotate-right"></i> RESET</button>
+                <button class="btn-reset" onclick="clearFilters()">RESET</button>
             </div>
         </div>
         <div class="filter-grid">
             <div class="filter-group">
                 <label>Order No:</label>
                 <select id="filter_order" class="form-select-stock" onchange="applyFilters()">
-                    <option value="">-- ทุกใบสั่ง --</option>
+                    <option value="">-- All Orders --</option>
                 </select>
             </div>
             <div class="filter-group">
                 <label>PO No:</label>
                 <select id="filter_po" class="form-select-stock" onchange="applyFilters()">
-                    <option value="">-- ทุก PO --</option>
+                    <option value="">-- All PO --</option>
                 </select>
             </div>
             <div class="filter-group">
                 <label>Product Code:</label>
                 <select id="filter_work" class="form-select-stock" onchange="applyFilters()">
-                    <option value="">-- ทุกรหัสสินค้า --</option>
+                    <option value="">-- All Products --</option>
                 </select>
             </div>
             <div class="filter-group">
                 <label>Step:</label>
                 <select id="filter_step" class="form-select-stock" onchange="applyFilters()">
-                    <option value="">-- ทุกขั้นตอน --</option>
+                    <option value="">-- All Steps --</option>
                 </select>
             </div>
         </div>
     </div>
 
-    <!-- พื้นที่แสดง Gantt Chart -->
-    <div class="dashboard-container">
-        <div class="gantt-header">
+    <div class="dashboard-container" style="padding: 0; border: none; background: transparent;">
+        <div class="gantt-header" style="padding: 0 5px;">
             <div class="gantt-title" id="ganttChartTitle">> ภาพรวมแผนงาน</div>
             <div class="gantt-legend">
-                <div class="legend-item"><div class="box-planned"></div> ระยะเวลาตามแผน</div>
-                <div class="legend-item"><div class="box-actual"></div> ผลิตได้จริงทับซ้อน</div>
+                <div class="legend-item"><div class="box-planned"></div> แผนงาน (Plan)</div>
+                <div class="legend-item"><div class="box-actual"></div> ผลิตจริง (Actual)</div>
             </div>
         </div>
         
@@ -354,15 +329,16 @@
             <table class="gantt-table" id="ganttTable">
                 <thead id="ganttHead">
                     <tr>
-                        <th style="min-width: 140px;">ขั้นตอน / Order</th>
-                        <th style="min-width: 220px;">สถานะยอดผลิต</th>
-                        <th>กำลังโหลดข้อมูล...</th>
+                        <!-- เปลี่ยนหัวคอลัมน์ -->
+                        <th style="min-width: 200px;">ขั้นตอน [Order]</th>
+                        <th style="min-width: 200px;">ผลิตได้ / ยอดสั่ง / %</th>
+                        <th>...</th>
                     </tr>
                 </thead>
                 <tbody id="ganttBody">
                     <tr>
                         <td colspan="3" class="text-center py-4 text-muted">
-                            <i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังซิงก์ข้อมูลฐานข้อมูล...
+                            <i class="fa-solid fa-spinner fa-spin me-2"></i> โหลดข้อมูล...
                         </td>
                     </tr>
                 </tbody>
@@ -376,13 +352,8 @@
     const headers = { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY, "Content-Type": "application/json" };
 
     const STEP_ABBR_MAP = {
-        "ตัดเหรียญมือ": "ตร.มือ",
-        "ตัดเหรียญออโต": "ตร.ออโต",
-        "ตัดมุม": "ตัดมุม",
-        "รีดใบ": "รีดใบ",
-        "ตัดใบ": "ตัดใบ",
-        "ตร.มือ": "ตร.มือ",
-        "ตร.ออโต": "ตร.ออโต"
+        "ตัดเหรียญมือ": "ตร.มือ", "ตัดเหรียญออโต": "ตร.ออโต", "ตัดมุม": "ตัดมุม", 
+        "รีดใบ": "รีดใบ", "ตัดใบ": "ตัดใบ", "ตร.มือ": "ตร.มือ", "ตร.ออโต": "ตร.ออโต"
     };
 
     function getStepAbbr(name) {
@@ -391,13 +362,7 @@
     }
 
     let rawData = { orders: [], workItems: [], steps: [], targets: [], daily: [], orderSteps: [] };
-    
-    let maps = {
-        workIdToCode: {},
-        stepIdToName: {},
-        targetIdToStepId: {},
-        workIdToStepIds: {} 
-    };
+    let maps = { workIdToCode: {}, stepIdToName: {}, targetIdToStepId: {}, workIdToStepIds: {} };
 
     window.onload = async function() {
         await fetchAllData();
@@ -406,7 +371,7 @@
 
     async function fetchAllData() {
         try {
-            document.getElementById('syncIndicator').innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin"></i> SYNCING...';
+            document.getElementById('syncIndicator').innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin"></i> SYNC';
             document.getElementById('syncIndicator').style.borderColor = "var(--neon-yellow)";
             document.getElementById('syncIndicator').style.color = "var(--neon-yellow)";
 
@@ -422,37 +387,28 @@
             const responses = await Promise.all(endpoints.map(url => fetch(url, { headers })));
             const data = await Promise.all(responses.map(res => res.json()));
 
-            rawData = {
-                orders: data[0], workItems: data[1], steps: data[2], 
-                targets: data[3], daily: data[4], orderSteps: data[5] || [] 
-            };
+            rawData = { orders: data[0], workItems: data[1], steps: data[2], targets: data[3], daily: data[4], orderSteps: data[5] || [] };
 
             buildMaps();
             applyFilters();
 
             setTimeout(() => {
-                document.getElementById('syncIndicator').innerHTML = '<i class="fa-solid fa-circle-check"></i> LIVE SYNC';
+                document.getElementById('syncIndicator').innerHTML = '<i class="fa-solid fa-circle-check"></i> SYNC';
                 document.getElementById('syncIndicator').style.borderColor = "var(--neon-green)";
                 document.getElementById('syncIndicator').style.color = "var(--neon-green)";
             }, 1000);
 
         } catch (error) {
-            console.error("Fetch Data Error:", error);
-            document.getElementById('syncIndicator').innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ERROR';
+            console.error("Error:", error);
+            document.getElementById('syncIndicator').innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ERR';
             document.getElementById('syncIndicator').style.color = "#ff3366";
-            document.getElementById('syncIndicator').style.borderColor = "#ff3366";
         }
     }
 
     function buildMaps() {
-        maps.workIdToCode = {};
-        rawData.workItems.forEach(w => maps.workIdToCode[w.id_work] = w.work_code);
-
-        maps.stepIdToName = {};
-        rawData.steps.forEach(s => maps.stepIdToName[s.id_step] = s.step_name);
-
-        maps.targetIdToStepId = {};
-        maps.workIdToStepIds = {};
+        maps.workIdToCode = {}; rawData.workItems.forEach(w => maps.workIdToCode[w.id_work] = w.work_code);
+        maps.stepIdToName = {}; rawData.steps.forEach(s => maps.stepIdToName[s.id_step] = s.step_name);
+        maps.targetIdToStepId = {}; maps.workIdToStepIds = {};
         rawData.targets.forEach(t => {
             maps.targetIdToStepId[t.id_target] = t.id_step;
             if(!maps.workIdToStepIds[t.id_work]) maps.workIdToStepIds[t.id_work] = new Set();
@@ -461,11 +417,6 @@
     }
 
     function populateDropdowns(fOrder = '', fPo = '', fWork = '', fStep = '') {
-        const selOrder = document.getElementById('filter_order');
-        const selPo = document.getElementById('filter_po');
-        const selWork = document.getElementById('filter_work');
-        const selStep = document.getElementById('filter_step');
-
         const isMatch = (item, orderVal, poVal, workVal, stepVal) => {
             let wCode = maps.workIdToCode[item.id_work] ? String(maps.workIdToCode[item.id_work]).trim() : String(item.id_work);
             let matchOrder = !orderVal || (item.order_no && item.order_no.trim() === orderVal);
@@ -479,36 +430,32 @@
             return matchOrder && matchPo && matchWork && matchStep;
         };
 
-        const validForOrder = rawData.orders.filter(item => isMatch(item, '', fPo, fWork, fStep));
-        const validForPo = rawData.orders.filter(item => isMatch(item, fOrder, '', fWork, fStep));
-        const validForWork = rawData.orders.filter(item => isMatch(item, fOrder, fPo, '', fStep));
-        const validForStep = rawData.orders.filter(item => isMatch(item, fOrder, fPo, fWork, ''));
+        const validForOrder = rawData.orders.filter(i => isMatch(i, '', fPo, fWork, fStep));
+        const validForPo = rawData.orders.filter(i => isMatch(i, fOrder, '', fWork, fStep));
+        const validForWork = rawData.orders.filter(i => isMatch(i, fOrder, fPo, '', fStep));
+        const validForStep = rawData.orders.filter(i => isMatch(i, fOrder, fPo, fWork, ''));
 
         const orders = [...new Set(validForOrder.map(i => i.order_no ? String(i.order_no).trim() : null).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'th', {numeric:true}));
         const pos = [...new Set(validForPo.map(i => i.po_no ? String(i.po_no).trim() : null).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'th', {numeric:true}));
-        const works = [...new Set(validForWork.map(i => {
-            let code = maps.workIdToCode[i.id_work] || i.id_work;
-            return code ? String(code).trim() : null;
-        }).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'th', {numeric:true}));
+        const works = [...new Set(validForWork.map(i => (maps.workIdToCode[i.id_work] || i.id_work) ? String(maps.workIdToCode[i.id_work] || i.id_work).trim() : null).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'th', {numeric:true}));
 
         let validStepIds = new Set();
-        validForStep.forEach(o => {
-            let sIds = maps.workIdToStepIds[o.id_work];
-            if(sIds) sIds.forEach(id => validStepIds.add(id));
-        });
+        validForStep.forEach(o => { if(maps.workIdToStepIds[o.id_work]) maps.workIdToStepIds[o.id_work].forEach(id => validStepIds.add(id)); });
         const steps = [...validStepIds].map(id => ({ id: id, name: getStepAbbr(maps.stepIdToName[id]) })).filter(s => s.name).sort((a,b) => a.name.localeCompare(b.name, 'th'));
 
-        selOrder.innerHTML = '<option value="">-- ทุกใบสั่ง --</option>';
-        orders.forEach(o => selOrder.innerHTML += `<option value="${o}" ${o===fOrder?'selected':''}>${o}</option>`);
+        const upd = (id, arr, def, val) => {
+            let el = document.getElementById(id);
+            el.innerHTML = `<option value="">${def}</option>` + arr.map(x => {
+                let v = typeof x === 'object' ? x.id : x;
+                let n = typeof x === 'object' ? x.name : x;
+                return `<option value="${v}" ${String(v)===val?'selected':''}>${n}</option>`;
+            }).join('');
+        };
 
-        selPo.innerHTML = '<option value="">-- ทุก PO --</option>';
-        pos.forEach(p => selPo.innerHTML += `<option value="${p}" ${p===fPo?'selected':''}>${p}</option>`);
-
-        selWork.innerHTML = '<option value="">-- ทุกรหัสสินค้า --</option>';
-        works.forEach(w => selWork.innerHTML += `<option value="${w}" ${w===fWork?'selected':''}>${w}</option>`);
-
-        selStep.innerHTML = '<option value="">-- ทุกขั้นตอน --</option>';
-        steps.forEach(s => selStep.innerHTML += `<option value="${s.id}" ${String(s.id)===fStep?'selected':''}>${s.name}</option>`);
+        upd('filter_order', orders, '-- All Orders --', fOrder);
+        upd('filter_po', pos, '-- All PO --', fPo);
+        upd('filter_work', works, '-- All Products --', fWork);
+        upd('filter_step', steps, '-- All Steps --', fStep);
     }
 
     function applyFilters() {
@@ -518,21 +465,14 @@
         const fStep = document.getElementById('filter_step').value;
 
         populateDropdowns(fOrder, fPo, fWork, fStep);
-
-        document.getElementById('ganttChartTitle').innerText = fWork ? `> แผนงานชิ้นงาน: ${fWork}` : (fOrder ? `> แผนงานใบสั่ง: ${fOrder}` : '> ภาพรวมแผนงาน');
+        document.getElementById('ganttChartTitle').innerText = fWork ? `> แผนงานชิ้นงาน: ${fWork}` : (fOrder ? `> แผนงานใบสั่ง: ${fOrder}` : '> ภาพรวมแผนงานทั้งหมด');
 
         let filteredOrders = rawData.orders.filter(o => {
             let wCode = maps.workIdToCode[o.id_work] ? String(maps.workIdToCode[o.id_work]).trim() : String(o.id_work);
             let matchOrder = !fOrder || (o.order_no && o.order_no.trim() === fOrder);
             let matchPo = !fPo || (o.po_no && o.po_no.trim() === fPo);
             let matchWork = !fWork || wCode === fWork;
-            
-            let matchStep = true;
-            if(fStep) {
-                let sIds = maps.workIdToStepIds[o.id_work];
-                matchStep = sIds && sIds.has(parseInt(fStep));
-            }
-
+            let matchStep = !fStep || (maps.workIdToStepIds[o.id_work] && maps.workIdToStepIds[o.id_work].has(parseInt(fStep)));
             return matchOrder && matchPo && matchWork && matchStep;
         });
 
@@ -540,10 +480,7 @@
     }
 
     function clearFilters() {
-        document.getElementById('filter_order').value = '';
-        document.getElementById('filter_po').value = '';
-        document.getElementById('filter_work').value = '';
-        document.getElementById('filter_step').value = '';
+        ['filter_order','filter_po','filter_work','filter_step'].forEach(id => document.getElementById(id).value = '');
         applyFilters();
     }
 
@@ -552,8 +489,8 @@
         const tbody = document.getElementById('ganttBody');
 
         if(orders.length === 0) {
-            thead.innerHTML = `<tr><th>ขั้นตอน / Order</th><th>สถานะยอดผลิต</th></tr>`;
-            tbody.innerHTML = `<tr><td colspan="2" class="text-center py-4 text-muted">ไม่พบข้อมูลตามเงื่อนไขที่กรอง</td></tr>`;
+            thead.innerHTML = `<tr><th style="min-width:200px;">ขั้นตอน [Order]</th><th style="min-width:200px;">ผลิตได้ / ยอดสั่ง / %</th></tr>`;
+            tbody.innerHTML = `<tr><td colspan="2" class="text-center py-4 text-muted">ไม่พบข้อมูลตามเงื่อนไข</td></tr>`;
             return;
         }
 
@@ -577,7 +514,6 @@
 
                     let sDate = new Date(startDateStr);
                     let eDate = new Date(endDateStr);
-
                     if (sDate < minDate) minDate = new Date(sDate);
                     if (eDate > maxDate) maxDate = new Date(eDate);
 
@@ -601,7 +537,6 @@
         });
 
         if (rowsData.length === 0) {
-            thead.innerHTML = `<tr><th>ขั้นตอน / Order</th><th>สถานะยอดผลิต</th></tr>`;
             tbody.innerHTML = `<tr><td colspan="2" class="text-center py-4 text-muted">ไม่มีข้อมูลวันที่สำหรับแผนงานนี้</td></tr>`;
             return;
         }
@@ -615,72 +550,71 @@
             dateHeaders.push(new Date(curr));
             curr.setDate(curr.getDate() + 1);
         }
-        let totalDays = dateHeaders.length;
 
-        // วาดหัวตาราง (Thead)
+        // Thead
         let headHtml = `<tr>
-            <th style="min-width: 140px;">ขั้นตอน / Order</th>
-            <th style="min-width: 220px;">สถานะยอดผลิต</th>`;
-            
-        dateHeaders.forEach(d => {
-            let dStr = `${d.getDate()}/${d.getMonth()+1}`;
-            headHtml += `<th style="min-width: 60px;">${dStr}</th>`;
-        });
+            <th>ขั้นตอน <span style="font-weight:normal; font-size:0.65rem;">[Order]</span></th>
+            <th>ผลิตได้ / ยอดสั่ง / %</th>`;
+        dateHeaders.forEach(d => { headHtml += `<th style="min-width: 40px;">${d.getDate()}/${d.getMonth()+1}</th>`; });
         headHtml += `</tr>`;
         thead.innerHTML = headHtml;
 
-        // วาดเนื้อหาตาราง (Tbody)
+        // Tbody
         let bodyHtml = '';
         rowsData.forEach(row => {
-            const diffTimeStart = Math.abs(row.startDate - minDate);
-            const offsetDays = Math.ceil(diffTimeStart / (1000 * 60 * 60 * 24));
-            
-            const diffTimeDuration = Math.abs(row.endDate - row.startDate);
-            const durationDays = Math.ceil(diffTimeDuration / (1000 * 60 * 60 * 24)) + 1; 
-            
-            const remainingDays = totalDays - offsetDays - durationDays; 
+            const offsetDays = Math.ceil(Math.abs(row.startDate - minDate) / 86400000);
+            const durationDays = Math.ceil(Math.abs(row.endDate - row.startDate) / 86400000) + 1; 
+            const remainingDays = dateHeaders.length - offsetDays - durationDays; 
 
-            let percent = 0;
-            if (row.target > 0) {
-                percent = (row.actual / row.target) * 100;
-                if(percent > 100) percent = 100;
-            }
-            
-            let textClass = percent < 40 ? "low-percent" : "";
+            let realPercent = (row.target > 0) ? (row.actual / row.target) * 100 : 0;
+            let percentWidth = Math.min(realPercent, 100); 
+            let textClass = percentWidth < 20 ? "low-percent" : "";
 
             bodyHtml += `<tr>`;
             
-            // คอลัมน์ 1: ข้อมูล Order / ขั้นตอน
+            // Col 1: การใช้ Flex เพื่อดันชื่อชิดซ้าย และ Order ชิดขวา
             bodyHtml += `
-                <td>
-                    <div class="step-name">${row.step_name}</div>
-                    <div class="step-order">${row.order_no}</div>
+                <td style="padding: 0 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; height: 100%;">
+                        <span class="step-name">${row.step_name}</span> 
+                        <span class="step-order">[${row.order_no}]</span>
+                    </div>
                 </td>
             `;
 
-            // คอลัมน์ 2: ข้อมูล "ทำได้: X / เป้า: Y" แบบชิดซ้ายตรึงไว้
+            // Col 2: ผลิตได้ / ยอดสั่ง / %
             bodyHtml += `
-                <td style="color: var(--neon-green); font-weight: bold; font-size: 0.85rem; vertical-align: middle;">
-                    ทำได้: ${row.actual.toLocaleString()} / เป้า: ${row.target.toLocaleString()}
+               bodyHtml += `
+                <td style="padding: 0 6px; font-family: 'Courier New', monospace; font-size: 0.8rem; letter-spacing: -0.5px;">
+                    <div style="display: grid; grid-template-columns: 1fr 12px 1fr 12px 55px; align-items: center; width: 100%;">
+                        <span style="color: var(--neon-green); font-weight: bold; text-align: right;">${row.actual.toLocaleString()}</span>
+                        <span style="color: var(--text-muted); text-align: center;">/</span>
+                        <span style="color: #ffffff; text-align: right;">${row.target.toLocaleString()}</span>
+                        <span style="color: var(--text-muted); text-align: center;">/</span>
+                        <span style="color: var(--neon-yellow); text-align: right;">${realPercent.toFixed(1)}%</span>
+                    </div>
                 </td>
             `;
 
+            // Offset ว่าง
             if (offsetDays > 0) bodyHtml += `<td colspan="${offsetDays}"></td>`;
 
+            // Bar 
             if (durationDays > 0) {
-                // บาร์แสดงเป็นเปอร์เซ็นต์ %
                 bodyHtml += `
-                    <td colspan="${durationDays}" style="padding: 5px;">
+                    <td colspan="${durationDays}" style="padding: 2px;">
                         <div class="gantt-bar-wrapper">
                             <div class="bar-planned"></div>
-                            <div class="bar-actual" style="width: ${percent}%;"></div>
-                            <div class="bar-text ${textClass}">${percent.toFixed(1)}%</div>
+                            <div class="bar-actual" style="width: ${percentWidth}%;"></div>
+                            <div class="bar-text ${textClass}">${percentWidth.toFixed(0)}%</div>
                         </div>
                     </td>
                 `;
             }
 
+            // Remaining ว่าง
             if (remainingDays > 0) bodyHtml += `<td colspan="${remainingDays}"></td>`;
+            
             bodyHtml += `</tr>`;
         });
 
