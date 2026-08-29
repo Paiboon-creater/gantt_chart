@@ -26,7 +26,7 @@
             --table-bg: #071910;
             --bar-planned: #113a24;
             --bar-actual: #00ff88;
-            --cell-width: 40px; /* Base width for 1 day */
+            --cell-width: 40px;
         }
 
         body {
@@ -60,7 +60,6 @@
             margin-bottom: 15px;
         }
 
-        /* Filter Section */
         .filter-header {
             display: flex;
             justify-content: space-between;
@@ -131,7 +130,6 @@
             cursor: pointer;
         }
 
-        /* Gantt Chart Area */
         .gantt-header {
             display: flex;
             justify-content: space-between;
@@ -168,7 +166,7 @@
         .gantt-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1000px;
+            min-width: 1200px;
         }
 
         .gantt-table th, .gantt-table td {
@@ -177,7 +175,7 @@
             text-align: center;
             color: var(--text-main);
             font-size: 0.75rem;
-            height: 32px; /* Set fixed row height */
+            height: 32px;
             white-space: nowrap;
             box-sizing: border-box;
         }
@@ -192,7 +190,6 @@
             z-index: 10;
         }
 
-        /* Fixed Date Header Width */
         .date-header {
             min-width: var(--cell-width) !important;
             max-width: var(--cell-width) !important;
@@ -200,23 +197,33 @@
             padding: 4px 0 !important;
         }
 
-        /* ----- การตั้งค่า Sticky คอลัมน์ที่ 1, 2 และ 3 ----- */
+        /* --- การตั้งค่า Sticky คอลัมน์ที่ 1 ถึง 5 ด้านหน้า --- */
         .gantt-table th:nth-child(1), .gantt-table td:nth-child(1) {
             position: sticky; left: 0; background-color: #06170e; z-index: 11;
-            min-width: 170px; max-width: 170px; border-right: 1px solid var(--border-dim);
+            min-width: 150px; max-width: 150px; border-right: 1px solid var(--border-dim);
         }
         .gantt-table th:nth-child(2), .gantt-table td:nth-child(2) {
-            position: sticky; left: 170px; background-color: #06170e; z-index: 11;
-            text-align: left; min-width: 130px; max-width: 130px; border-right: 1px solid var(--border-dim);
+            position: sticky; left: 150px; background-color: #06170e; z-index: 11;
+            text-align: left; min-width: 110px; max-width: 110px; border-right: 1px solid var(--border-dim);
         }
         .gantt-table th:nth-child(3), .gantt-table td:nth-child(3) {
-            position: sticky; left: 300px; background-color: #06170e; z-index: 11;
-            text-align: center; min-width: 220px; max-width: 220px; border-right: 2px solid var(--border-dim);
+            position: sticky; left: 260px; background-color: #06170e; z-index: 11;
+            text-align: center; min-width: 190px; max-width: 190px; border-right: 1px solid var(--border-dim);
+        }
+        .gantt-table th:nth-child(4), .gantt-table td:nth-child(4) {
+            position: sticky; left: 450px; background-color: #06170e; z-index: 11;
+            text-align: center; min-width: 90px; max-width: 90px; border-right: 1px solid var(--border-dim);
+        }
+        .gantt-table th:nth-child(5), .gantt-table td:nth-child(5) {
+            position: sticky; left: 540px; background-color: #06170e; z-index: 11;
+            text-align: center; min-width: 90px; max-width: 90px; border-right: 2px solid var(--border-dim);
         }
 
         .gantt-table thead th:nth-child(1), 
         .gantt-table thead th:nth-child(2), 
-        .gantt-table thead th:nth-child(3) {
+        .gantt-table thead th:nth-child(3),
+        .gantt-table thead th:nth-child(4),
+        .gantt-table thead th:nth-child(5) {
             z-index: 12;
             background-color: #030806;
             color: var(--neon-green);
@@ -225,17 +232,19 @@
         tr:hover td { background-color: rgba(0, 255, 136, 0.08); }
         tr:hover td:nth-child(1), 
         tr:hover td:nth-child(2), 
-        tr:hover td:nth-child(3) { background-color: #0b2e1c; }
+        tr:hover td:nth-child(3),
+        tr:hover td:nth-child(4),
+        tr:hover td:nth-child(5) { background-color: #0b2e1c; }
 
         .step-name { font-weight: bold; color: var(--text-main); }
         .step-order { color: var(--neon-yellow); font-size: 0.7rem; }
         .work-code-text { color: #8ca89a; font-family: 'Courier New', monospace; font-size: 0.75rem; font-weight: bold; }
+        .date-text { color: var(--neon-yellow); font-family: 'Courier New', monospace; font-size: 0.7rem; }
 
-        /* แถบกราฟ Gantt (Interactive Version) */
         .gantt-bar-wrapper {
             position: absolute;
             height: 20px;
-            top: 5px; /* Center inside 32px height row */
+            top: 5px;
             border-radius: 2px;
             cursor: pointer;
             z-index: 5;
@@ -267,7 +276,7 @@
             font-size: 0.65rem;
             font-weight: bold;
             line-height: 20px;
-            pointer-events: none; /* Prevent text selection while dragging */
+            pointer-events: none;
         }
         
         .bar-text.low-percent {
@@ -275,7 +284,6 @@
             text-shadow: 1px 1px 1px #000;
         }
 
-        /* Editing State Styles */
         .gantt-bar-wrapper.is-editing {
             z-index: 50 !important;
             box-shadow: 0 0 0 2px var(--neon-yellow), 0 0 10px rgba(245, 166, 35, 0.5);
@@ -283,10 +291,9 @@
         }
 
         .gantt-bar-wrapper.is-editing .bar-planned {
-            background-color: rgba(245, 166, 35, 0.25); /* Tint to orange when editing */
+            background-color: rgba(245, 166, 35, 0.25);
         }
 
-        /* Resize Handles */
         .resize-handle {
             position: absolute;
             top: 0;
@@ -303,7 +310,6 @@
             display: block;
         }
 
-        /* Save Action Bar */
         #save-bar {
             position: fixed;
             bottom: -100px;
@@ -380,15 +386,17 @@
             <table class="gantt-table" id="ganttTable">
                 <thead id="ganttHead">
                     <tr>
-                        <th style="min-width: 170px;">ขั้นตอน [Order]</th>
-                        <th style="min-width: 130px;">รหัสชิ้นงาน</th>
-                        <th style="min-width: 220px;">ผลิตได้ / ยอดสั่ง / %</th>
+                        <th style="min-width: 150px;">ขั้นตอน [Order]</th>
+                        <th style="min-width: 110px;">รหัสชิ้นงาน</th>
+                        <th style="min-width: 190px;">ผลิตได้ / ยอดสั่ง / %</th>
+                        <th style="min-width: 90px;">วันที่เริ่ม</th>
+                        <th style="min-width: 90px;">วันที่จบ</th>
                         <th>...</th>
                     </tr>
                 </thead>
                 <tbody id="ganttBody">
                     <tr>
-                        <td colspan="4" class="text-center py-4 text-muted">
+                        <td colspan="6" class="text-center py-4 text-muted">
                             <i class="fa-solid fa-spinner fa-spin me-2"></i> โหลดข้อมูล...
                         </td>
                     </tr>
@@ -421,7 +429,7 @@
         "apikey": SUPABASE_KEY, 
         "Authorization": "Bearer " + SUPABASE_KEY, 
         "Content-Type": "application/json",
-        "Prefer": "return=minimal" // แนะนำให้ใส่สำหรับการทำ UPDATE
+        "Prefer": "return=minimal"
     };
 
     const STEP_ABBR_MAP = {
@@ -437,18 +445,15 @@
     let rawData = { orders: [], workItems: [], steps: [], targets: [], daily: [], orderSteps: [] };
     let maps = { workIdToCode: {}, stepIdToName: {}, targetIdToStepId: {}, workIdToStepIds: {} };
     
-    // State สำหรับการแก้ไข Drag & Drop
     const CELL_WIDTH = 40;
-    let localEdits = {}; // เก็บข้อมูลการแก้ไขชั่วคราว { taskId: { startDate, endDate } }
-    let editingTaskId = null; // ID ของ task ที่กำลังถูกแก้ไข
-    let currentMinDate = null; // เก็บ minDate ของกระดานปัจจุบันใช้อ้างอิงตอนลาก
-    let currentTotalDays = 0; // เก็บจำนวนวันทั้งหมดในกระดาน
+    let localEdits = {}; 
+    let editingTaskId = null; 
+    let currentMinDate = null; 
+    let currentTotalDays = 0; 
 
     window.onload = async function() {
         await fetchAllData();
-        setupDragAndDrop(); // กำหนด Event Listener สำหรับลากวาง
-        // ปิด Auto Sync ชั่วคราวเพื่อไม่ให้ขัดขวางการลากแก้ไข
-        // setInterval(fetchAllData, 30000); 
+        setupDragAndDrop();
     };
 
     async function fetchAllData() {
@@ -572,11 +577,13 @@
 
         if(orders.length === 0) {
             thead.innerHTML = `<tr>
-                <th style="min-width:170px;">ขั้นตอน [Order]</th>
-                <th style="min-width:130px;">รหัสชิ้นงาน</th>
-                <th style="min-width:220px;">ผลิตได้ / ยอดสั่ง / %</th>
+                <th style="min-width:150px;">ขั้นตอน [Order]</th>
+                <th style="min-width:110px;">รหัสชิ้นงาน</th>
+                <th style="min-width:190px;">ผลิตได้ / ยอดสั่ง / %</th>
+                <th style="min-width:90px;">วันที่เริ่ม</th>
+                <th style="min-width:90px;">วันที่จบ</th>
             </tr>`;
-            tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">ไม่พบข้อมูลตามเงื่อนไข</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">ไม่พบข้อมูลตามเงื่อนไข</td></tr>`;
             return;
         }
 
@@ -592,10 +599,9 @@
                 stepIds.forEach(stepId => {
                     if (filteredStepId && String(stepId) !== filteredStepId) return;
                     
-                    let taskId = `${order.id_order}_${stepId}`; // Unique ID สำหรับลาก
+                    let taskId = `${order.id_order}_${stepId}`;
                     let oStep = rawData.orderSteps.find(os => os.id_order === order.id_order && os.id_step === stepId);
                     
-                    // ดึงข้อมูลวันที่ (ถ้ามีการแก้ไขในระบบจำลอง (localEdits) ให้ใช้อันนั้นก่อน)
                     let startDateStr = (localEdits[taskId] && localEdits[taskId].startDate) ? localEdits[taskId].startDate : ((oStep && oStep.start_date) ? oStep.start_date : order.start_date);
                     let endDateStr = (localEdits[taskId] && localEdits[taskId].endDate) ? localEdits[taskId].endDate : ((oStep && oStep.end_date) ? oStep.end_date : order.end_date);
 
@@ -625,21 +631,23 @@
                         target: orderQty,
                         actual: actualTotal,
                         startDate: sDate,
-                        endDate: eDate
+                        endDate: eDate,
+                        startDateStr: startDateStr,
+                        endDateStr: endDateStr
                     });
                 });
             }
         });
 
         if (rowsData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">ไม่มีข้อมูลวันที่สำหรับแผนงานนี้</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">ไม่มีข้อมูลวันที่สำหรับแผนงานนี้</td></tr>`;
             return;
         }
 
         minDate.setDate(minDate.getDate() - 1);
         maxDate.setDate(maxDate.getDate() + 1);
         
-        currentMinDate = new Date(minDate); // เก็บไว้คำนวณตอนลาก
+        currentMinDate = new Date(minDate);
 
         let dateHeaders = [];
         let curr = new Date(minDate);
@@ -649,18 +657,20 @@
         }
         currentTotalDays = dateHeaders.length;
 
-        // Thead (เพิ่มขนาด Column วันที่ให้ตายตัว)
+        // Thead 
         let headHtml = `<tr>
-            <th style="min-width: 170px;">ขั้นตอน <span style="font-weight:normal; font-size:0.65rem;">[Order]</span></th>
-            <th style="min-width: 130px;">รหัสชิ้นงาน</th>
-            <th style="min-width: 220px;">ผลิตได้ / ยอดสั่ง / %</th>`;
+            <th style="min-width: 150px;">ขั้นตอน <span style="font-weight:normal; font-size:0.65rem;">[Order]</span></th>
+            <th style="min-width: 110px;">รหัสชิ้นงาน</th>
+            <th style="min-width: 190px;">ผลิตได้ / ยอดสั่ง / %</th>
+            <th style="min-width: 90px;">วันที่เริ่ม</th>
+            <th style="min-width: 90px;">วันที่จบ</th>`;
         dateHeaders.forEach(d => { 
             headHtml += `<th class="date-header">${d.getDate()}/${d.getMonth()+1}</th>`; 
         });
         headHtml += `</tr>`;
         thead.innerHTML = headHtml;
 
-        // Tbody (เปลี่ยนการ Render Timeline Area เป็น Absolute Layout)
+        // Tbody 
         let bodyHtml = '';
         rowsData.forEach(row => {
             const offsetDays = Math.ceil(Math.abs(row.startDate - minDate) / 86400000);
@@ -674,7 +684,7 @@
 
             bodyHtml += `<tr>`;
             
-            // Col 1, 2, 3 (Sticky Data)
+            // Col 1, 2, 3, 4, 5 (Sticky Data รวมวันที่เริ่มและวันที่จบด้านหน้า)
             bodyHtml += `
                 <td style="padding: 0 8px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; height: 100%;">
@@ -686,7 +696,7 @@
                     <span class="work-code-text">${row.work_code}</span>
                 </td>
                 <td style="padding: 0; font-family: 'Courier New', monospace; font-size: 0.8rem; letter-spacing: -0.5px;">
-                    <div style="display: grid; grid-template-columns: 60px 15px 60px 15px 50px; justify-content: center; align-items: center; width: 100%; height: 100%;">
+                    <div style="display: grid; grid-template-columns: 55px 12px 55px 12px 45px; justify-content: center; align-items: center; width: 100%; height: 100%;">
                         <span style="color: var(--neon-green); font-weight: bold; text-align: right;">${row.actual.toLocaleString()}</span>
                         <span style="color: var(--text-muted); text-align: center;">/</span>
                         <span style="color: #ffffff; text-align: right;">${row.target.toLocaleString()}</span>
@@ -694,18 +704,22 @@
                         <span style="color: var(--neon-yellow); text-align: right;">${realPercent.toFixed(1)}%</span>
                     </div>
                 </td>
+                <td style="padding: 0 4px;">
+                    <span class="date-text">${row.startDateStr}</span>
+                </td>
+                <td style="padding: 0 4px;">
+                    <span class="date-text">${row.endDateStr}</span>
+                </td>
             `;
 
-            // Timeline Area (Absolute Container Overlay)
+            // Timeline Area
             let totalGridWidth = currentTotalDays * CELL_WIDTH;
             bodyHtml += `
                 <td colspan="${currentTotalDays}" style="padding: 0; min-width: ${totalGridWidth}px; max-width: ${totalGridWidth}px; position: relative;">
-                    <!-- พื้นหลังตารางตารางแนวตั้งแบบเนียน ๆ -->
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
                                 background: repeating-linear-gradient(to right, transparent, transparent ${CELL_WIDTH - 1}px, rgba(23,99,60,0.4) ${CELL_WIDTH - 1}px, rgba(23,99,60,0.4) ${CELL_WIDTH}px);">
                     </div>
                     
-                    <!-- Gantt Bar -->
                     <div class="gantt-bar-wrapper ${isEditing ? 'is-editing' : ''}" 
                          data-taskid="${row.taskId}"
                          ondblclick="startEditing('${row.taskId}')"
@@ -729,17 +743,15 @@
         tbody.innerHTML = bodyHtml;
     }
 
-    // --- Interactive Drag and Drop Logic ---
-
     function startEditing(taskId) {
         editingTaskId = taskId;
-        applyFilters(); // Re-render to show edit handles
+        applyFilters(); 
         document.getElementById('save-bar').classList.add('show');
     }
 
     function cancelEdits() {
         editingTaskId = null;
-        localEdits = {}; // ล้างค่าที่จำไว้
+        localEdits = {}; 
         applyFilters();
         document.getElementById('save-bar').classList.remove('show');
     }
@@ -756,14 +768,11 @@
         btnSave.disabled = true;
 
         try {
-            // วนลูปส่ง Request ไปอัปเดตข้อมูลทีละรายการที่ถูกแก้ไข
             const updatePromises = Object.entries(localEdits).map(async ([taskId, dates]) => {
-                // taskId มีรูปแบบ "idOrder_idStep" เช่น "1_5"
                 const [orderIdStr, stepIdStr] = taskId.split('_');
                 const orderId = parseInt(orderIdStr);
                 const stepId = parseInt(stepIdStr);
 
-                // ยิง API แบบ PATCH เพื่ออัปเดตข้อมูล
                 const url = `${SUPABASE_URL}/order_steps?id_order=eq.${orderId}&id_step=eq.${stepId}`;
                 const payload = {
                     start_date: dates.startDate,
@@ -783,14 +792,12 @@
 
             await Promise.all(updatePromises);
             
-            // เมื่อสำเร็จ
             alert('บันทึกข้อมูลวันที่สำเร็จแล้ว');
             
             editingTaskId = null;
-            localEdits = {}; // เคลียร์ของเก่าทิ้ง
+            localEdits = {}; 
             document.getElementById('save-bar').classList.remove('show');
             
-            // เรียกดึงข้อมูลใหม่จากฐานข้อมูลเพื่อวาดตารางใหม่
             await fetchAllData(); 
             
         } catch (error) {
@@ -805,7 +812,7 @@
     function setupDragAndDrop() {
         const container = document.getElementById('ganttBody');
         let isDragging = false;
-        let currentAction = null; // 'move', 'resize-left', 'resize-right'
+        let currentAction = null; 
         let activeElement = null;
         let startMouseX = 0;
         let initialLeft = 0;
@@ -834,7 +841,7 @@
                 currentAction = 'move';
             }
             
-            document.body.style.userSelect = 'none'; // Prevent text highlighting
+            document.body.style.userSelect = 'none';
         });
 
         document.addEventListener('mousemove', (e) => {
@@ -870,7 +877,6 @@
             isDragging = false;
             document.body.style.userSelect = '';
 
-            // Snap เข้า Grid ช่องละ 40px
             const currentLeft = parseInt(activeElement.style.left);
             const currentWidth = parseInt(activeElement.style.width);
             
@@ -880,7 +886,6 @@
             activeElement.style.left = `${snappedOffset * CELL_WIDTH}px`;
             activeElement.style.width = `${snappedDuration * CELL_WIDTH}px`;
 
-            // คำนวณวันที่ใหม่
             if (activeTaskId && currentMinDate) {
                 let newStartDate = new Date(currentMinDate);
                 newStartDate.setDate(currentMinDate.getDate() + snappedOffset);
@@ -888,7 +893,6 @@
                 let newEndDate = new Date(newStartDate);
                 newEndDate.setDate(newStartDate.getDate() + snappedDuration - 1);
                 
-                // เก็บลง Local Edits (format เป็น YYYY-MM-DD เพื่อเอาไว้ส่ง API)
                 localEdits[activeTaskId] = {
                     startDate: newStartDate.toISOString().split('T')[0],
                     endDate: newEndDate.toISOString().split('T')[0]
@@ -899,7 +903,6 @@
             currentAction = null;
         });
     }
-
 </script>
 
 </body>
