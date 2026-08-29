@@ -11,21 +11,21 @@
     
     <style>
         :root {
-            --bg-dark: #030806;
-            --panel-bg: rgba(7, 24, 16, 0.95);
-            --border-neon: #00ff88;
-            --border-dim: #17633c;
-            --text-main: #f0fdf7;
-            --text-label: #a7e0c4;
-            --text-muted: #8ca89a;
-            --neon-green: #00ff88;
-            --neon-glow: rgba(0, 255, 136, 0.3);
-            --neon-yellow: #f5a623;
-            --input-bg: #112a1e;
+            --bg-dark: #0f1714;
+            --panel-bg: rgba(18, 28, 24, 0.95);
+            --border-neon: #4ade80;
+            --border-dim: #273f34;
+            --text-main: #e2e8e4;
+            --text-label: #8ba898;
+            --text-muted: #627d6d;
+            --neon-green: #4ade80;
+            --neon-glow: rgba(74, 222, 128, 0.15);
+            --neon-yellow: #fbbf24;
+            --input-bg: #16241e;
             --input-text: #ffffff;
-            --table-bg: #071910;
-            --bar-planned: #113a24;
-            --bar-actual: #00ff88;
+            --table-bg: #101915;
+            --bar-planned: #1d3629;
+            --bar-actual: #4ade80;
             --cell-width: 20px; /* ลดขนาดจาก 40px เหลือ 20px (ครึ่งหนึ่ง) */
         }
 
@@ -43,11 +43,11 @@
             content: "";
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, rgba(3, 8, 6, 0.95), rgba(5, 20, 12, 0.9)),
+            background: linear-gradient(135deg, rgba(15, 23, 20, 0.95), rgba(18, 28, 24, 0.9)),
                         url('https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1200&q=80') no-repeat center center;
             background-size: cover;
             z-index: -1;
-            filter: brightness(0.3) contrast(1.2) hue-rotate(60deg);
+            filter: brightness(0.25) contrast(1.1) hue-rotate(60deg);
         }
 
         .dashboard-container {
@@ -172,7 +172,7 @@
         }
 
         .gantt-table th, .gantt-table td {
-            border: 1px solid rgba(23, 99, 60, 0.4);
+            border: 1px solid rgba(39, 63, 52, 0.4);
             padding: 4px 6px;
             text-align: center;
             color: var(--text-main);
@@ -183,8 +183,8 @@
         }
 
         .gantt-table th {
-            background-color: #05140c;
-            color: #a7e0c4;
+            background-color: #121e18;
+            color: var(--text-label);
             font-size: 0.7rem;
             font-weight: bold;
             position: sticky;
@@ -204,15 +204,15 @@
 
         /* ----- การตั้งค่า Sticky คอลัมน์ที่ 1, 2 และ 3 ----- */
         .gantt-table th:nth-child(1), .gantt-table td:nth-child(1) {
-            position: sticky; left: 0; background-color: #06170e; z-index: 11;
+            position: sticky; left: 0; background-color: #16241e; z-index: 11;
             min-width: 170px; max-width: 170px; border-right: 1px solid var(--border-dim);
         }
         .gantt-table th:nth-child(2), .gantt-table td:nth-child(2) {
-            position: sticky; left: 170px; background-color: #06170e; z-index: 11;
+            position: sticky; left: 170px; background-color: #16241e; z-index: 11;
             text-align: left; min-width: 130px; max-width: 130px; border-right: 1px solid var(--border-dim);
         }
         .gantt-table th:nth-child(3), .gantt-table td:nth-child(3) {
-            position: sticky; left: 300px; background-color: #06170e; z-index: 11;
+            position: sticky; left: 300px; background-color: #16241e; z-index: 11;
             text-align: center; min-width: 220px; max-width: 220px; border-right: 2px solid var(--border-dim);
         }
 
@@ -220,14 +220,14 @@
         .gantt-table thead th:nth-child(2), 
         .gantt-table thead th:nth-child(3) {
             z-index: 12;
-            background-color: #030806;
+            background-color: #0f1714;
             color: var(--neon-green);
         }
 
-        tr:hover td { background-color: rgba(0, 255, 136, 0.08); }
+        tr:hover td { background-color: rgba(74, 222, 128, 0.08); }
         tr:hover td:nth-child(1), 
         tr:hover td:nth-child(2), 
-        tr:hover td:nth-child(3) { background-color: #0b2e1c; }
+        tr:hover td:nth-child(3) { background-color: #1c3026; }
 
         .step-name { font-weight: bold; color: var(--text-main); }
         .step-order { color: var(--neon-yellow); font-size: 0.7rem; }
@@ -265,7 +265,7 @@
             width: 100%;
             text-align: center;
             z-index: 3;
-            color: #000;
+            color: #052e16;
             font-size: 0.55rem; /* ปรับขนาดตัวเลข % ให้เล็กลงเล็กน้อย */
             font-weight: bold;
             line-height: 20px;
@@ -639,6 +639,36 @@
             return;
         }
 
+        // จัดกลุ่มและเรียงลำดับข้อมูล
+        // 1. จัดกลุ่มตามเลขที่ใบสั่ง (Order No)
+        let groupedOrders = {};
+        rowsData.forEach(row => {
+            if (!groupedOrders[row.order_no]) {
+                groupedOrders[row.order_no] = {
+                    order_no: row.order_no,
+                    earliestStart: new Date("2099-12-31"), // เซ็ตวันที่ไกลๆ ไว้เพื่อเปรียบเทียบ
+                    tasks: []
+                };
+            }
+            groupedOrders[row.order_no].tasks.push(row);
+            
+            // หาว่าในใบสั่งนี้ งานไหนเริ่มเร็วที่สุด เพื่อใช้เป็นเกณฑ์จัดลำดับของกลุ่ม
+            if (row.startDate < groupedOrders[row.order_no].earliestStart) {
+                groupedOrders[row.order_no].earliestStart = row.startDate;
+            }
+        });
+
+        // 2. เรียงลำดับกลุ่มใบสั่ง ตามวันที่เริ่มงานที่เร็วที่สุด (น้อยไปมาก - บนลงล่าง)
+        let sortedGroups = Object.values(groupedOrders).sort((a, b) => a.earliestStart - b.earliestStart);
+
+        // 3. เรียงลำดับงานย่อยภายในใบสั่งเดียวกัน และรวมกลับเป็น Array เดียว
+        rowsData = [];
+        sortedGroups.forEach(group => {
+            // เรียงลำดับขั้นตอนภายในใบสั่ง ตามวันที่เริ่มผลิต
+            group.tasks.sort((a, b) => a.startDate - b.startDate);
+            rowsData.push(...group.tasks);
+        });
+
         minDate.setDate(minDate.getDate() - 1);
         maxDate.setDate(maxDate.getDate() + 1);
         
@@ -705,7 +735,7 @@
                 <td colspan="${currentTotalDays}" style="padding: 0; min-width: ${totalGridWidth}px; max-width: ${totalGridWidth}px; position: relative;">
                     <!-- พื้นหลังตารางตารางแนวตั้งแบบเนียน ๆ -->
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
-                                background: repeating-linear-gradient(to right, transparent, transparent ${CELL_WIDTH - 1}px, rgba(23,99,60,0.4) ${CELL_WIDTH - 1}px, rgba(23,99,60,0.4) ${CELL_WIDTH}px);">
+                                background: repeating-linear-gradient(to right, transparent, transparent ${CELL_WIDTH - 1}px, rgba(39,63,52,0.4) ${CELL_WIDTH - 1}px, rgba(39,63,52,0.4) ${CELL_WIDTH}px);">
                     </div>
                     
                     <!-- Gantt Bar -->
