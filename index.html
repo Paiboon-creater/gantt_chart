@@ -8,6 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS Library (สำหรับ Realtime) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         :root {
@@ -293,10 +295,7 @@
             z-index: 5;
             transition: box-shadow 0.2s, background-color 0.2s;
         }
-        /* ชี้เมาส์เปลี่ยนเป็นลูกศรตอน Login แล้วเท่านั้น */
-        .gantt-bar-wrapper.can-edit {
-            cursor: pointer;
-        }
+        .gantt-bar-wrapper.can-edit { cursor: pointer; }
 
         .bar-planned {
             position: absolute;
@@ -487,7 +486,12 @@
         "Prefer": "return=minimal" 
     };
 
-    // ข้อมูลผู้ใช้งานที่สามารถแก้ไขได้
+    // เปิดใช้งาน Supabase JS Client สำหรับ Realtime
+    const supabaseClient = supabase.createClient(
+        SUPABASE_URL.replace('/rest/v1', ''), 
+        SUPABASE_KEY
+    );
+
     const validUsers = {
         "admin": "112233",
         "user1": "@oh111",
@@ -526,7 +530,6 @@
     let currentTotalDays = 0; 
     let isDateHidden = false; 
     
-    // สถานะ Login และ ลิมิตข้อมูล
     let isLoggedIn = false;
     let currentUser = "";
     let displayLimit = 15; 
@@ -534,23 +537,39 @@
     window.onload = async function() {
         await fetchAllData();
         setupDragAndDrop();
-        // เอาการโหลดอัตโนมัติ 5 วินาทีออกตามที่ขอ
+        setupRealtime(); // เรียกใช้งานระบบดักจับข้อมูลแบบ Real-time
     };
 
-    // ฟังก์ชันจัดการ Login/Logout
+    // ฟังก์ชันตั้งค่า Realtime ของ Supabase
+    function setupRealtime() {
+        supabaseClient
+            .channel('db-changes')
+            // ดักฟังการเปลี่ยนวันที่ (เมื่อมีการลากกราฟ)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'order_steps' }, payload => {
+                if (Object.keys(localEdits).length === 0 && !editingTaskId) {
+                    fetchAllData(true);
+                }
+            })
+            // ดักฟังการอัปเดตยอดผลิต (เมื่อมีคนคีย์ยอด Actual)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_production' }, payload => {
+                if (Object.keys(localEdits).length === 0 && !editingTaskId) {
+                    fetchAllData(true);
+                }
+            })
+            .subscribe();
+    }
+
     function toggleLogin() {
         const btn = document.getElementById('btn-login');
         if (isLoggedIn) {
-            // Logout
             isLoggedIn = false;
             currentUser = "";
             btn.innerHTML = '<i class="fa-solid fa-lock"></i> Login เพื่อแก้ไข';
             btn.classList.remove('btn-logout');
             btn.classList.add('btn-login');
-            cancelEdits(); // ยอมแพ้การแก้ไขทั้งหมดถ้ายกเลิก
+            cancelEdits(); 
             alert("ออกจากระบบแก้ไขเรียบร้อยแล้ว (Read-Only Mode)");
         } else {
-            // Login
             let userInput = prompt("กรุณากรอก Username:");
             if (!userInput) return;
             let passInput = prompt("กรุณากรอก Password:");
@@ -563,7 +582,7 @@
                 btn.classList.remove('btn-login');
                 btn.classList.add('btn-logout');
                 alert(`เข้าสู่ระบบสำเร็จ ยินดีต้อนรับคุณ ${currentUser}\nคุณสามารถลากกราฟ, เปลี่ยนวันที่, หรือเปลี่ยนสีแท่งได้แล้วครับ`);
-                applyFilters(); // Re-render เพื่อเปิด input ให้แก้ไขได้
+                applyFilters(); 
             } else {
                 alert("Username หรือ Password ไม่ถูกต้อง!");
             }
@@ -610,7 +629,7 @@
         }, 500);
     }
 
-    async function fetchAllData() {
+    async function fetchAllData(isSilent = false) {
         try {
             const endpoints = [
                 `${SUPABASE_URL}/orders?select=*`,
@@ -630,7 +649,7 @@
             applyFilters();
         } catch (error) {
             console.error("Error:", error);
-            alert("เกิดข้อผิดพลาดในการโหลดข้อมูลจาก Database");
+            if(!isSilent) alert("เกิดข้อผิดพลาดในการโหลดข้อมูลจาก Database");
         }
     }
 
@@ -689,7 +708,7 @@
     }
 
     function resetLimitAndFilter() {
-        displayLimit = 15; // รีเซ็ตการแสดงผลกลับไปเป็น 15 บรรทัดเมื่อเปลี่ยนฟิลเตอร์
+        displayLimit = 15; 
         applyFilters();
     }
 
@@ -699,12 +718,12 @@
     }
 
     function loadMore() {
-        displayLimit += 15; // กดแล้วเพิ่มทีละ 15 บรรทัด
+        displayLimit += 15; 
         applyFilters();
     }
 
     function handleDateChange(taskId, type, value) {
-        if (!isLoggedIn) return; // บล็อกถ้าไม่ได้ล็อคอิน
+        if (!isLoggedIn) return; 
         if (!value) return; 
         
         let startInput = document.getElementById(`start_${taskId}`).value;
@@ -790,7 +809,6 @@
 
                     if(!startDateStr || !endDateStr) return;
 
-                    // การกรองข้อมูลวันที่ช่วงระยะเวลา (Date Range Filter)
                     if (fDateFrom && endDateStr < fDateFrom) return; 
                     if (fDateTo && startDateStr > fDateTo) return;
 
@@ -867,7 +885,6 @@
         }
         currentTotalDays = dateHeaders.length;
 
-        // Render Thead 
         let headHtml = `<tr>
             <th class="col-step">ขั้นตอน <span style="font-weight:normal; font-size:0.65rem;">[Order]</span></th>
             <th class="col-code">รหัสชิ้นงาน</th>
@@ -882,7 +899,6 @@
 
         let bodyHtml = '';
         
-        // ตัดข้อมูลแสดงทีละชุดตาม limit
         const totalRows = rowsData.length;
         const paginatedRows = rowsData.slice(0, displayLimit);
 
@@ -904,7 +920,6 @@
             let isEditing = editingTaskId === row.taskId;
             let customBg = customColors[row.taskId] || ''; 
             
-            // เช็คสถานะ Read-Only
             let readOnlyAttr = !isLoggedIn ? 'disabled' : '';
             let doubleClickAction = isLoggedIn ? `ondblclick="startEditing('${row.taskId}')"` : '';
             let rightClickAction = isLoggedIn ? `oncontextmenu="changeCustomColor(event, '${row.taskId}')"` : `oncontextmenu="event.preventDefault();"`;
@@ -966,7 +981,6 @@
             bodyHtml += `</tr>`;
         });
 
-        // ปุ่มโหลดข้อมูลเพิ่ม หากข้อมูลมีมากกว่า 15 แถว
         if (totalRows > displayLimit) {
             let remain = totalRows - displayLimit;
             bodyHtml += `
@@ -987,7 +1001,7 @@
     }
 
     function changeCustomColor(e, taskId) {
-        if (!isLoggedIn) return; // บล็อกถ้าไม่ได้ Login
+        if (!isLoggedIn) return; 
         e.preventDefault(); 
         let colors = ['', '#ff3366', '#f5a623', '#00ff88', '#00ffff', '#ff00ff', '#ffffff'];
         let currentColor = customColors[taskId] || '';
@@ -1005,7 +1019,7 @@
     }
 
     function startEditing(taskId) {
-        if (!isLoggedIn) return; // บล็อกถ้าไม่ได้ Login
+        if (!isLoggedIn) return; 
         editingTaskId = taskId;
         applyFilters(); 
         document.getElementById('save-bar').classList.add('show');
@@ -1066,7 +1080,6 @@
             localEdits = {}; 
             document.getElementById('save-bar').classList.remove('show');
             
-            // ดึงข้อมูลใหม่เพื่อซิงค์
             forceSync();
             
         } catch (error) {
@@ -1089,7 +1102,7 @@
         let activeTaskId = null;
 
         container.addEventListener('mousedown', (e) => {
-            if (!isLoggedIn) return; // บล็อกถ้าไม่ได้ล็อคอิน
+            if (!isLoggedIn) return; 
             if (!editingTaskId) return; 
             
             const wrapper = e.target.closest('.is-editing');
