@@ -575,7 +575,7 @@
     let isLoggedIn = false;
     let currentUser = "";
     
-    // โหลดรายชื่องานที่ถูกซ่อนมาจาก LocalStorage (ข้ามเซสชั่นได้)
+    // โหลดรายชื่องานที่ถูกซ่อนมาจาก LocalStorage
     let hiddenTaskIds = new Set(JSON.parse(localStorage.getItem('jaguar_hidden_tasks') || '[]')); 
 
     function saveHiddenTasks() {
@@ -586,7 +586,33 @@
         await fetchAllData();
         setupDragAndDrop();
         setupRealtime(); 
+        setupScrollTracking(); // เริ่มต้นระบบดักจับและจดจำ Scroll
     };
+
+    // ฟังก์ชันเปิดการดักจับการเลื่อน Scroll เพื่อบันทึกตำแหน่งล่าสุด
+    function setupScrollTracking() {
+        const scrollArea = document.getElementById('ganttScrollArea');
+        scrollArea.addEventListener('scroll', (e) => {
+            localStorage.setItem('jaguar_scroll_left', e.target.scrollLeft);
+            localStorage.setItem('jaguar_scroll_top', e.target.scrollTop);
+        });
+
+        window.addEventListener('scroll', () => {
+            localStorage.setItem('jaguar_window_scroll_top', window.scrollY);
+        });
+    }
+
+    // ฟังก์ชันสำหรับเรียกคืนตำแหน่ง Scroll ล่าสุด
+    function restoreScrollPosition() {
+        const scrollArea = document.getElementById('ganttScrollArea');
+        const savedLeft = localStorage.getItem('jaguar_scroll_left');
+        const savedTop = localStorage.getItem('jaguar_scroll_top');
+        const savedWindowTop = localStorage.getItem('jaguar_window_scroll_top');
+
+        if (savedLeft !== null) scrollArea.scrollLeft = parseInt(savedLeft, 10);
+        if (savedTop !== null) scrollArea.scrollTop = parseInt(savedTop, 10);
+        if (savedWindowTop !== null) window.scrollTo(0, parseInt(savedWindowTop, 10));
+    }
 
     function setupRealtime() {
         supabaseClient
@@ -752,14 +778,12 @@
         upd('filter_step', steps, '-- All Steps --', fStep);
     }
 
-    // ฟังก์ชั่นซ่อนแถว และบันทึกค่าลง Local Storage
     function hideRow(taskId) {
         hiddenTaskIds.add(taskId);
         saveHiddenTasks();
         applyFilters(); 
     }
 
-    // ฟังก์ชั่นเลิกซ่อนแถวเฉพาะรายการ (แบบแมนนวล)
     function unhideRow(taskId) {
         hiddenTaskIds.delete(taskId);
         saveHiddenTasks();
@@ -913,7 +937,6 @@
             }
         });
 
-        // 1. หาว่าแต่ละใบสั่ง (Order) มีวันที่เริ่มต้นที่เร็วที่สุดคือวันไหน
         let orderMinDates = {};
         rowsData.forEach(r => {
             if (!orderMinDates[r.order_no] || r.startDate < orderMinDates[r.order_no]) {
@@ -921,27 +944,21 @@
             }
         });
 
-        // 2. จัดเรียงข้อมูล
         rowsData.sort((a, b) => {
-            // ดึงค่าวันที่เริ่มที่น้อยที่สุดของกลุ่มใบสั่งนั้นๆ มาเทียบกัน
             let minDateA = orderMinDates[a.order_no].getTime();
             let minDateB = orderMinDates[b.order_no].getTime();
             
-            // กฎข้อ 1: เอาใบสั่งที่กลุ่มงานเริ่มเร็วที่สุด ขึ้นก่อน
             if (minDateA !== minDateB) {
                 return minDateA - minDateB; 
             }
             
-            // กฎข้อ 2: จัดให้ชื่อใบสั่งเหมือนกัน อยู่ติดกันเสมอ
             let compOrder = String(a.order_no).localeCompare(String(b.order_no), 'th', { numeric: true });
             if (compOrder !== 0) return compOrder;
             
-            // กฎข้อ 3: ภายในใบสั่งเดียวกัน ให้เรียงขั้นตอนจากวันที่เริ่มน้อยไปหามาก
             if (a.startDate.getTime() !== b.startDate.getTime()) {
                 return a.startDate.getTime() - b.startDate.getTime();
             }
 
-            // กฎข้อ 4: ถ้าวันที่เริ่มพร้อมกัน ให้เรียงตามชื่อขั้นตอน
             return a.step_name.localeCompare(b.step_name, 'th');
         });
 
@@ -1087,6 +1104,11 @@
         tbody.innerHTML = bodyHtml;
 
         applyDateColumnVisibility();
+        
+        // รอให้ DOM เรนเดอร์เสร็จแล้วค่อยเลื่อนหน้าจอกลับไปยังตำแหน่งเดิม
+        setTimeout(() => {
+            restoreScrollPosition();
+        }, 100);
     }
 
     function changeCustomColor(e, taskId) {
