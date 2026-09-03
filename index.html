@@ -8,7 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Supabase JS Library (สำหรับ Realtime) -->
+    <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
@@ -371,6 +371,40 @@
             border-top: 2px solid #fff;
         }
         #save-bar.show { bottom: 0; }
+        
+        /* สไตล์พิเศษสำหรับ Checkbox Toggle และ ปุ่มซ่อน */
+        .custom-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 4px 6px;
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid var(--border-dim);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .custom-toggle input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            accent-color: var(--neon-green);
+            cursor: pointer;
+        }
+
+        .btn-hide-row {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+        .btn-hide-row:hover {
+            color: var(--neon-red);
+        }
     </style>
 </head>
 <body>
@@ -401,38 +435,49 @@
         <div class="filter-grid">
             <div class="filter-group">
                 <label>ช่วงเวลาเริ่ม (Date From):</label>
-                <input type="date" id="filter_date_from" class="form-select-stock" onchange="resetLimitAndFilter()">
+                <input type="date" id="filter_date_from" class="form-select-stock" onchange="applyFilters()">
             </div>
             <div class="filter-group">
                 <label>ช่วงเวลาถึง (Date To):</label>
-                <input type="date" id="filter_date_to" class="form-select-stock" onchange="resetLimitAndFilter()">
+                <input type="date" id="filter_date_to" class="form-select-stock" onchange="applyFilters()">
             </div>
             <div class="filter-group">
                 <label>Order No:</label>
-                <select id="filter_order" class="form-select-stock" onchange="resetLimitAndFilter()">
+                <select id="filter_order" class="form-select-stock" onchange="applyFilters()">
                     <option value="">-- All Orders --</option>
                 </select>
             </div>
             <div class="filter-group">
                 <label>PO No:</label>
-                <select id="filter_po" class="form-select-stock" onchange="resetLimitAndFilter()">
+                <select id="filter_po" class="form-select-stock" onchange="applyFilters()">
                     <option value="">-- All PO --</option>
                 </select>
             </div>
             <div class="filter-group">
                 <label>Product Code:</label>
-                <select id="filter_work" class="form-select-stock" onchange="resetLimitAndFilter()">
+                <select id="filter_work" class="form-select-stock" onchange="applyFilters()">
                     <option value="">-- All Products --</option>
                 </select>
             </div>
             <div class="filter-group">
                 <label>Step:</label>
-                <select id="filter_step" class="form-select-stock" onchange="resetLimitAndFilter()">
+                <select id="filter_step" class="form-select-stock" onchange="applyFilters()">
                     <option value="">-- All Steps --</option>
                 </select>
             </div>
-            <div class="filter-group" style="display: flex; align-items: flex-end;">
-                <button class="btn-action" onclick="clearFilters()" style="width:100%; height: 32px;">RESET</button>
+            <!-- ปุ่ม Reset และ Checkbox ซ่อน/แสดงตัวเลข/ดูงานที่ซ่อน -->
+            <div class="filter-group" style="display: flex; flex-direction: column; justify-content: flex-end; gap: 4px;">
+                <div style="display: flex; gap: 4px;">
+                    <div class="custom-toggle" style="flex: 1;">
+                        <input type="checkbox" id="chk-show-daily" checked onchange="applyFilters()">
+                        <label for="chk-show-daily" style="margin:0; font-size:0.7rem; color:var(--neon-green); cursor:pointer;">เลขรายวัน</label>
+                    </div>
+                    <div class="custom-toggle" style="flex: 1; border-color: var(--neon-yellow);">
+                        <input type="checkbox" id="chk-show-hidden" onchange="applyFilters()" style="accent-color: var(--neon-yellow);">
+                        <label for="chk-show-hidden" style="margin:0; font-size:0.7rem; color:var(--neon-yellow); cursor:pointer;">ดูงานที่ซ่อน</label>
+                    </div>
+                </div>
+                <button class="btn-action" onclick="clearFilters()" style="width: 100%; height: 32px;">RESET</button>
             </div>
         </div>
     </div>
@@ -490,7 +535,6 @@
         "Prefer": "return=minimal" 
     };
 
-    // เปิดใช้งาน Supabase JS Client สำหรับ Realtime
     const supabaseClient = supabase.createClient(
         SUPABASE_URL.replace('/rest/v1', ''), 
         SUPABASE_KEY
@@ -536,25 +580,28 @@
     
     let isLoggedIn = false;
     let currentUser = "";
-    let displayLimit = 15; 
+    
+    // โหลดรายชื่องานที่ถูกซ่อนมาจาก LocalStorage (ข้ามเซสชั่นได้)
+    let hiddenTaskIds = new Set(JSON.parse(localStorage.getItem('jaguar_hidden_tasks') || '[]')); 
+
+    function saveHiddenTasks() {
+        localStorage.setItem('jaguar_hidden_tasks', JSON.stringify([...hiddenTaskIds]));
+    }
 
     window.onload = async function() {
         await fetchAllData();
         setupDragAndDrop();
-        setupRealtime(); // เรียกใช้งานระบบดักจับข้อมูลแบบ Real-time
+        setupRealtime(); 
     };
 
-    // ฟังก์ชันตั้งค่า Realtime ของ Supabase
     function setupRealtime() {
         supabaseClient
             .channel('db-changes')
-            // ดักฟังการเปลี่ยนวันที่ (เมื่อมีการลากกราฟ)
             .on('postgres_changes', { event: '*', schema: 'public', table: 'order_steps' }, payload => {
                 if (Object.keys(localEdits).length === 0 && !editingTaskId) {
                     fetchAllData(true);
                 }
             })
-            // ดักฟังการอัปเดตยอดผลิต (เมื่อมีคนคีย์ยอด Actual)
             .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_production' }, payload => {
                 if (Object.keys(localEdits).length === 0 && !editingTaskId) {
                     fetchAllData(true);
@@ -640,7 +687,7 @@
                 `${SUPABASE_URL}/work_items?select=*`,
                 `${SUPABASE_URL}/production_steps?select=*`,
                 `${SUPABASE_URL}/targets?select=*`,
-                `${SUPABASE_URL}/daily_production?select=id_order,id_target,produced_amount`,
+                `${SUPABASE_URL}/daily_production?select=id_order,id_target,produced_amount,record_date`,
                 `${SUPABASE_URL}/order_steps?select=*`
             ];
 
@@ -711,18 +758,22 @@
         upd('filter_step', steps, '-- All Steps --', fStep);
     }
 
-    function resetLimitAndFilter() {
-        displayLimit = 15; 
+    // ฟังก์ชั่นซ่อนแถว และบันทึกค่าลง Local Storage
+    function hideRow(taskId) {
+        hiddenTaskIds.add(taskId);
+        saveHiddenTasks();
+        applyFilters(); 
+    }
+
+    // ฟังก์ชั่นเลิกซ่อนแถวเฉพาะรายการ (แบบแมนนวล)
+    function unhideRow(taskId) {
+        hiddenTaskIds.delete(taskId);
+        saveHiddenTasks();
         applyFilters();
     }
 
     function clearFilters() {
         ['filter_date_from', 'filter_date_to', 'filter_order','filter_po','filter_work','filter_step'].forEach(id => document.getElementById(id).value = '');
-        resetLimitAndFilter();
-    }
-
-    function loadMore() {
-        displayLimit += 15; 
         applyFilters();
     }
 
@@ -779,6 +830,8 @@
         
         const fDateFrom = document.getElementById('filter_date_from').value;
         const fDateTo = document.getElementById('filter_date_to').value;
+        const showDailyNums = document.getElementById('chk-show-daily').checked;
+        const showHiddenTasks = document.getElementById('chk-show-hidden').checked; // เช็คว่าต้องการดูงานที่ซ่อนหรือไม่
 
         if(orders.length === 0) {
             thead.innerHTML = `<tr>
@@ -806,6 +859,11 @@
                     if (filteredStepId && String(stepId) !== filteredStepId) return;
                     
                     let taskId = `${order.id_order}_${stepId}`; 
+                    let isTaskHidden = hiddenTaskIds.has(taskId);
+                    
+                    // ถ้ารายการถูกซ่อนไว้ และ ผู้ใช้ไม่ได้ติ๊ก "ดูงานที่ซ่อน" ให้ข้ามการวาดแถวนี้ไปเลย
+                    if (isTaskHidden && !showHiddenTasks) return;
+
                     let oStep = rawData.orderSteps.find(os => os.id_order === order.id_order && os.id_step === stepId);
                     
                     let startDateStr = (localEdits[taskId] && localEdits[taskId].startDate) ? localEdits[taskId].startDate : ((oStep && oStep.start_date) ? oStep.start_date : order.start_date);
@@ -818,20 +876,32 @@
 
                     let sDate = new Date(startDateStr);
                     let eDate = new Date(endDateStr);
-                    if (sDate < minDate) minDate = new Date(sDate);
-                    if (eDate > maxDate) maxDate = new Date(eDate);
 
                     let actualTotal = 0;
+                    let dailyLogs = {};
+                    
                     rawData.daily.forEach(dp => {
                         if (dp.id_order === order.id_order && maps.targetIdToStepId[dp.id_target] === stepId) {
-                            actualTotal += dp.produced_amount || 0;
+                            let amt = dp.produced_amount || 0;
+                            actualTotal += amt;
+                            
+                            if (dp.record_date) {
+                                let dStr = String(dp.record_date).substring(0, 10);
+                                dailyLogs[dStr] = (dailyLogs[dStr] || 0) + amt;
+                            }
                         }
                     });
+
+                    let realPercent = (orderQty > 0) ? (actualTotal / orderQty) * 100 : 0;
+
+                    if (sDate < minDate) minDate = new Date(sDate);
+                    if (eDate > maxDate) maxDate = new Date(eDate);
 
                     let wCode = maps.workIdToCode[order.id_work] ? String(maps.workIdToCode[order.id_work]).trim() : (order.id_work || '-');
 
                     rowsData.push({
                         taskId: taskId,
+                        isHidden: isTaskHidden, // เก็บค่าว่าซ่อนอยู่หรือไม่ไว้ใช้ตอนเรนเดอร์
                         order_id: order.id_order,
                         step_id: stepId,
                         order_no: order.order_no || 'N/A',
@@ -839,6 +909,8 @@
                         step_name: getStepAbbr(maps.stepIdToName[stepId]) || 'Unknown',
                         target: orderQty,
                         actual: actualTotal,
+                        dailyLogs: dailyLogs,
+                        realPercent: realPercent,
                         startDate: sDate,
                         endDate: eDate,
                         startDateStr: startDateStr,
@@ -848,30 +920,19 @@
             }
         });
 
-        let orderMinDates = {};
-        rowsData.forEach(r => {
-            if (!orderMinDates[r.order_no] || r.startDate < orderMinDates[r.order_no]) {
-                orderMinDates[r.order_no] = r.startDate;
-            }
-        });
-
+        // เรียงลำดับจากวันที่สิ้นสุดแผน (endDate) จากน้อยไปหามาก (เก่าไปใหม่)
         rowsData.sort((a, b) => {
-            let minDateA = orderMinDates[a.order_no].getTime();
-            let minDateB = orderMinDates[b.order_no].getTime();
-            if (minDateA !== minDateB) {
-                return minDateA - minDateB; 
+            if (a.endDate.getTime() !== b.endDate.getTime()) {
+                return a.endDate.getTime() - b.endDate.getTime();
             }
             let compOrder = String(a.order_no).localeCompare(String(b.order_no), 'th', { numeric: true });
             if (compOrder !== 0) return compOrder;
             
-            if (a.startDate.getTime() !== b.startDate.getTime()) {
-                return a.startDate.getTime() - b.startDate.getTime();
-            }
-            return a.step_name.localeCompare(b.step_name);
+            return a.startDate.getTime() - b.startDate.getTime();
         });
 
         if (rowsData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">ไม่มีข้อมูลวันที่สำหรับแผนงานนี้</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">ไม่มีข้อมูลสำหรับแผนงานนี้ หรือ งานถูกซ่อนอยู่ทั้งหมด</td></tr>`;
             applyDateColumnVisibility();
             return;
         }
@@ -902,21 +963,17 @@
         thead.innerHTML = headHtml;
 
         let bodyHtml = '';
-        
-        const totalRows = rowsData.length;
-        const paginatedRows = rowsData.slice(0, displayLimit);
 
-        paginatedRows.forEach(row => {
+        rowsData.forEach(row => {
             const offsetDays = Math.ceil(Math.abs(row.startDate - minDate) / 86400000);
             const durationDays = Math.ceil(Math.abs(row.endDate - row.startDate) / 86400000) + 1; 
 
-            let realPercent = (row.target > 0) ? (row.actual / row.target) * 100 : 0;
-            let percentWidth = Math.min(realPercent, 100); 
+            let percentWidth = Math.min(row.realPercent, 100); 
             
             let percentColor = "#ff3366"; 
-            if (realPercent >= 100) {
+            if (row.realPercent >= 100) {
                 percentColor = "#00ff88"; 
-            } else if (realPercent >= 50) {
+            } else if (row.realPercent >= 50) {
                 percentColor = "#f5a623"; 
             }
 
@@ -928,12 +985,21 @@
             let doubleClickAction = isLoggedIn ? `ondblclick="startEditing('${row.taskId}')"` : '';
             let rightClickAction = isLoggedIn ? `oncontextmenu="changeCustomColor(event, '${row.taskId}')"` : `oncontextmenu="event.preventDefault();"`;
 
-            bodyHtml += `<tr>`;
+            // สไตล์พิเศษสำหรับแถวที่ถูกซ่อนอยู่ (จะทำงานก็ต่อเมื่อติ๊ก "ดูงานที่ซ่อน")
+            let rowStyle = row.isHidden ? 'opacity: 0.6; background-color: rgba(245, 166, 35, 0.05);' : '';
+            
+            // เปลี่ยนปุ่มตาตามสถานะ (ถ้าซ่อนอยู่ให้แสดงปุ่มลูกตาเต็มเพื่อกดยกเลิกซ่อน)
+            let eyeButtonHtml = row.isHidden 
+                ? `<button onclick="unhideRow('${row.taskId}')" class="btn-hide-row" title="เลิกซ่อนแถวนี้" style="color: var(--neon-yellow);"><i class="fa-solid fa-eye"></i></button>`
+                : `<button onclick="hideRow('${row.taskId}')" class="btn-hide-row" title="ซ่อนแถวนี้"><i class="fa-solid fa-eye-slash"></i></button>`;
+
+            bodyHtml += `<tr style="${rowStyle}">`;
             
             bodyHtml += `
                 <td class="col-step" style="padding: 0 8px;">
-                    <div style="display: grid; grid-template-columns: 90px auto; align-items: center; width: 100%; height: 100%;">
-                        <span class="step-name" style="text-align: left;">${row.step_name}</span> 
+                    <div style="display: grid; grid-template-columns: 24px 80px auto; align-items: center; width: 100%; height: 100%;">
+                        ${eyeButtonHtml}
+                        <span class="step-name" style="text-align: left; ${row.isHidden ? 'text-decoration: line-through;' : ''}">${row.step_name}</span> 
                         <span class="step-order" style="text-align: left;">[${row.order_no}]</span>
                     </div>
                 </td>
@@ -946,7 +1012,7 @@
                         <span style="color: var(--text-muted); text-align: center;">/</span>
                         <span style="color: #ffffff; text-align: right;">${row.target.toLocaleString()}</span>
                         <span style="color: var(--text-muted); text-align: center;">/</span>
-                        <span style="color: ${percentColor}; font-weight: bold; text-align: right;">${realPercent.toFixed(1)}%</span>
+                        <span style="color: ${percentColor}; font-weight: bold; text-align: right;">${row.realPercent.toFixed(1)}%</span>
                     </div>
                 </td>
                 <td class="col-start" style="padding: 0 4px;">
@@ -957,12 +1023,33 @@
                 </td>
             `;
 
+            let dailyNumbersHtml = '';
+            if (showDailyNums) {
+                dateHeaders.forEach((d, index) => {
+                    let dString = formatDateToLocal(d);
+                    if (row.dailyLogs && row.dailyLogs[dString]) {
+                        let leftPos = index * CELL_WIDTH;
+                        dailyNumbersHtml += `
+                            <div style="position: absolute; left: ${leftPos}px; top: 0; width: ${CELL_WIDTH}px; height: 100%;
+                                        display: flex; align-items: flex-end; justify-content: center; padding-bottom: 2px;
+                                        pointer-events: none; z-index: 50;">
+                                <span style="font-size: 0.6rem; color: #111; font-weight: bold; background: var(--neon-yellow); padding: 0 4px; border-radius: 3px; box-shadow: 0 0 4px rgba(0,0,0,0.8);">
+                                    ${row.dailyLogs[dString].toLocaleString()}
+                                </span>
+                            </div>
+                        `;
+                    }
+                });
+            }
+
             let totalGridWidth = currentTotalDays * CELL_WIDTH;
             bodyHtml += `
                 <td colspan="${currentTotalDays}" style="padding: 0; min-width: ${totalGridWidth}px; max-width: ${totalGridWidth}px; position: relative;">
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
                                 background: repeating-linear-gradient(to right, transparent, transparent ${CELL_WIDTH - 1}px, rgba(23,99,60,0.4) ${CELL_WIDTH - 1}px, rgba(23,99,60,0.4) ${CELL_WIDTH}px);">
                     </div>
+                    
+                    ${dailyNumbersHtml}
                     
                     <div class="gantt-bar-wrapper ${isEditing ? 'is-editing' : ''} ${isLoggedIn ? 'can-edit' : ''}" 
                          data-taskid="${row.taskId}"
@@ -984,20 +1071,6 @@
             
             bodyHtml += `</tr>`;
         });
-
-        if (totalRows > displayLimit) {
-            let remain = totalRows - displayLimit;
-            bodyHtml += `
-                <tr>
-                    <td colspan="5" class="text-center" style="padding: 10px;">
-                        <button class="btn-action" onclick="loadMore()" style="width: 250px;">
-                            <i class="fa-solid fa-angles-down"></i> แสดงข้อมูลเพิ่มเติมอีก (${remain} รายการ)
-                        </button>
-                    </td>
-                    <td colspan="${currentTotalDays}"></td>
-                </tr>
-            `;
-        }
 
         tbody.innerHTML = bodyHtml;
 
