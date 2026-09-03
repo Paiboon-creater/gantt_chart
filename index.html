@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>JAGUAR GANTT CHART // STOCK BOARD THEME</title>
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
@@ -465,7 +462,6 @@
                     <option value="">-- All Steps --</option>
                 </select>
             </div>
-            <!-- ปุ่ม Reset และ Checkbox ซ่อน/แสดงตัวเลข/ดูงานที่ซ่อน -->
             <div class="filter-group" style="display: flex; flex-direction: column; justify-content: flex-end; gap: 4px;">
                 <div style="display: flex; gap: 4px;">
                     <div class="custom-toggle" style="flex: 1;">
@@ -495,8 +491,7 @@
         <div class="gantt-container" id="ganttScrollArea">
             <table class="gantt-table" id="ganttTable">
                 <thead id="ganttHead">
-                    <!-- Thead โหลดโดย Javascript -->
-                </thead>
+                    </thead>
                 <tbody id="ganttBody">
                     <tr>
                         <td colspan="6" class="text-center py-4 text-muted">
@@ -508,7 +503,6 @@
         </div>
     </div>
 
-    <!-- Floating Save Action Bar -->
     <div id="save-bar">
         <div class="d-flex align-items-center gap-3">
             <i class="fa-solid fa-triangle-exclamation fs-3"></i>
@@ -831,7 +825,7 @@
         const fDateFrom = document.getElementById('filter_date_from').value;
         const fDateTo = document.getElementById('filter_date_to').value;
         const showDailyNums = document.getElementById('chk-show-daily').checked;
-        const showHiddenTasks = document.getElementById('chk-show-hidden').checked; // เช็คว่าต้องการดูงานที่ซ่อนหรือไม่
+        const showHiddenTasks = document.getElementById('chk-show-hidden').checked;
 
         if(orders.length === 0) {
             thead.innerHTML = `<tr>
@@ -861,7 +855,6 @@
                     let taskId = `${order.id_order}_${stepId}`; 
                     let isTaskHidden = hiddenTaskIds.has(taskId);
                     
-                    // ถ้ารายการถูกซ่อนไว้ และ ผู้ใช้ไม่ได้ติ๊ก "ดูงานที่ซ่อน" ให้ข้ามการวาดแถวนี้ไปเลย
                     if (isTaskHidden && !showHiddenTasks) return;
 
                     let oStep = rawData.orderSteps.find(os => os.id_order === order.id_order && os.id_step === stepId);
@@ -901,7 +894,7 @@
 
                     rowsData.push({
                         taskId: taskId,
-                        isHidden: isTaskHidden, // เก็บค่าว่าซ่อนอยู่หรือไม่ไว้ใช้ตอนเรนเดอร์
+                        isHidden: isTaskHidden,
                         order_id: order.id_order,
                         step_id: stepId,
                         order_no: order.order_no || 'N/A',
@@ -920,15 +913,36 @@
             }
         });
 
-        // เรียงลำดับจากวันที่สิ้นสุดแผน (endDate) จากน้อยไปหามาก (เก่าไปใหม่)
-        rowsData.sort((a, b) => {
-            if (a.endDate.getTime() !== b.endDate.getTime()) {
-                return a.endDate.getTime() - b.endDate.getTime();
+        // 1. หาว่าแต่ละใบสั่ง (Order) มีวันที่เริ่มต้นที่เร็วที่สุดคือวันไหน
+        let orderMinDates = {};
+        rowsData.forEach(r => {
+            if (!orderMinDates[r.order_no] || r.startDate < orderMinDates[r.order_no]) {
+                orderMinDates[r.order_no] = r.startDate;
             }
+        });
+
+        // 2. จัดเรียงข้อมูล
+        rowsData.sort((a, b) => {
+            // ดึงค่าวันที่เริ่มที่น้อยที่สุดของกลุ่มใบสั่งนั้นๆ มาเทียบกัน
+            let minDateA = orderMinDates[a.order_no].getTime();
+            let minDateB = orderMinDates[b.order_no].getTime();
+            
+            // กฎข้อ 1: เอาใบสั่งที่กลุ่มงานเริ่มเร็วที่สุด ขึ้นก่อน
+            if (minDateA !== minDateB) {
+                return minDateA - minDateB; 
+            }
+            
+            // กฎข้อ 2: จัดให้ชื่อใบสั่งเหมือนกัน อยู่ติดกันเสมอ
             let compOrder = String(a.order_no).localeCompare(String(b.order_no), 'th', { numeric: true });
             if (compOrder !== 0) return compOrder;
             
-            return a.startDate.getTime() - b.startDate.getTime();
+            // กฎข้อ 3: ภายในใบสั่งเดียวกัน ให้เรียงขั้นตอนจากวันที่เริ่มน้อยไปหามาก
+            if (a.startDate.getTime() !== b.startDate.getTime()) {
+                return a.startDate.getTime() - b.startDate.getTime();
+            }
+
+            // กฎข้อ 4: ถ้าวันที่เริ่มพร้อมกัน ให้เรียงตามชื่อขั้นตอน
+            return a.step_name.localeCompare(b.step_name, 'th');
         });
 
         if (rowsData.length === 0) {
@@ -985,10 +999,8 @@
             let doubleClickAction = isLoggedIn ? `ondblclick="startEditing('${row.taskId}')"` : '';
             let rightClickAction = isLoggedIn ? `oncontextmenu="changeCustomColor(event, '${row.taskId}')"` : `oncontextmenu="event.preventDefault();"`;
 
-            // สไตล์พิเศษสำหรับแถวที่ถูกซ่อนอยู่ (จะทำงานก็ต่อเมื่อติ๊ก "ดูงานที่ซ่อน")
             let rowStyle = row.isHidden ? 'opacity: 0.6; background-color: rgba(245, 166, 35, 0.05);' : '';
             
-            // เปลี่ยนปุ่มตาตามสถานะ (ถ้าซ่อนอยู่ให้แสดงปุ่มลูกตาเต็มเพื่อกดยกเลิกซ่อน)
             let eyeButtonHtml = row.isHidden 
                 ? `<button onclick="unhideRow('${row.taskId}')" class="btn-hide-row" title="เลิกซ่อนแถวนี้" style="color: var(--neon-yellow);"><i class="fa-solid fa-eye"></i></button>`
                 : `<button onclick="hideRow('${row.taskId}')" class="btn-hide-row" title="ซ่อนแถวนี้"><i class="fa-solid fa-eye-slash"></i></button>`;
