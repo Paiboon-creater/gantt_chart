@@ -1263,7 +1263,7 @@
         document.getElementById('save-bar').classList.remove('show');
     }
 
-    // อัปเดตฟังก์ชัน saveEdits สำหรับการ Upsert ข้อมูล
+    // ฟังก์ชัน saveEdits สำหรับการ Upsert ข้อมูลที่แก้ไขแล้ว
     async function saveEdits() {
         if (!isLoggedIn) return;
         if (Object.keys(localEdits).length === 0) {
@@ -1282,28 +1282,32 @@
                 const orderId = parseInt(orderIdStr);
                 const stepId = parseInt(stepIdStr);
 
-                // เช็คว่าในฐานข้อมูลมีข้อมูลของ Order และ Step นี้อยู่แล้วหรือไม่
+                // เช็คว่ามีข้อมูลเดิมอยู่แล้วหรือไม่
                 const existingStep = rawData.orderSteps.find(os => os.id_order === orderId && os.id_step === stepId);
                 
                 let url = '';
                 let method = '';
+                let payload = {};
                 
                 if (existingStep) {
-                    // ถ้ามีอยู่แล้วให้ใช้คำสั่ง UPDATE (PATCH) แบบเจาะจงตัว
+                    // กรณีอัปเดต (PATCH): ส่งแค่ start_date และ end_date
                     url = `${SUPABASE_URL}/order_steps?id_order=eq.${orderId}&id_step=eq.${stepId}`;
                     method = 'PATCH';
+                    payload = {
+                        start_date: dates.startDate,
+                        end_date: dates.endDate
+                    };
                 } else {
-                    // ถ้ายังไม่มีให้ใช้คำสั่ง INSERT (POST)
+                    // กรณีสร้างใหม่ (POST): ส่งครบทุกฟิลด์
                     url = `${SUPABASE_URL}/order_steps`;
                     method = 'POST';
+                    payload = {
+                        id_order: orderId,
+                        id_step: stepId,
+                        start_date: dates.startDate,
+                        end_date: dates.endDate
+                    };
                 }
-
-                const payload = {
-                    id_order: orderId,
-                    id_step: stepId,
-                    start_date: dates.startDate,
-                    end_date: dates.endDate
-                };
 
                 const response = await fetch(url, {
                     method: method,
@@ -1444,12 +1448,9 @@
     
     // --- ระบบป้องกัน Realtime หลุดเวลากดย้อนกลับ (Back-Forward Cache) ---
     window.addEventListener('pageshow', function (event) {
-        // event.persisted จะเป็น true เมื่อหน้าเว็บถูกโหลดขึ้นมาจากหน่วยความจำ (เช่น การกดย้อนกลับ)
         if (event.persisted) {
             console.log("โหลดหน้าเว็บจาก Cache - กำลังเชื่อมต่อฐานข้อมูลใหม่...");
-            // สั่งให้ดึงข้อมูลล่าสุดใหม่แบบเงียบๆ
             fetchAllData(true); 
-            // สั่งเชื่อมต่อระบบ Realtime ของ Supabase ใหม่อีกครั้ง
             setupRealtime(); 
         }
     });
