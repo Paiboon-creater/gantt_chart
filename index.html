@@ -495,8 +495,14 @@
             </div>
             <div class="filter-group" style="display: flex; flex-direction: column; justify-content: flex-end; gap: 4px;">
                 <div style="display: flex; gap: 4px;">
+                    <!-- ปรับแต่งส่วนตัวกรองเพิ่ม -->
+                    <div class="custom-toggle" style="flex: 1; border-color: var(--neon-red);">
+                        <input type="checkbox" id="chk-recent-only" checked onchange="applyFilters()" style="accent-color: var(--neon-red);">
+                        <label for="chk-recent-only" style="margin:0; font-size:0.7rem; color:var(--neon-red); cursor:pointer;">อัปเดตล่าสุด 5วัน</label>
+                    </div>
+                    <!-- เอา checked ออกจากเลขรายวัน -->
                     <div class="custom-toggle" style="flex: 1;">
-                        <input type="checkbox" id="chk-show-daily" checked onchange="applyFilters()">
+                        <input type="checkbox" id="chk-show-daily" onchange="applyFilters()">
                         <label for="chk-show-daily" style="margin:0; font-size:0.7rem; color:var(--neon-green); cursor:pointer;">เลขรายวัน</label>
                     </div>
                     <div class="custom-toggle" style="flex: 1; border-color: var(--neon-yellow);">
@@ -582,11 +588,14 @@
                     <li>กด <b>RESET</b> หากต้องการล้างตัวกรองทั้งหมดให้กลับเป็นค่าเริ่มต้น</li>
                 </ul>
 
-                <h5>4. ฟังก์ชันการแสดงผลอื่นๆ</h5>
+                <h5>4. ฟังก์ชันการแสดงผลและการจัดเรียง</h5>
                 <ul>
+                    <li><b>ตำแหน่งปัจจุบัน (วันนี้):</b> เมื่อเปิดฟอร์ม ระบบจะเลื่อนตารางไปยังวันที่ปัจจุบัน (ไฮไลต์คอลัมน์สีแดง) อัตโนมัติ โดยเว้นพื้นที่ด้านขวาไว้ 15 ช่อง เพื่อให้สามารถดูแผนงานที่กำลังจะมาถึงได้ง่าย</li>
+                    <li><b>การจัดเรียงใบสั่ง:</b> ระบบจะจัดกลุ่มงานตาม <b>เลขที่ใบสั่ง (Order No)</b> ให้อยู่ติดกันเสมอ เพื่อป้องกันไม่ให้มีใบสั่งอื่นมาคั่นหรือแทรกแถว</li>
+                    <li><b>อัปเดตล่าสุด 5วัน:</b> ตัวกรองนี้จะถูกเปิดไว้โดยอัตโนมัติ เพื่อดึงมาเฉพาะงานที่มีการผลิตเคลื่อนไหวในช่วง 5 วันที่ผ่านมา หากต้องการดูงานทั้งหมดให้ติ๊กเครื่องหมายถูกออก</li>
+                    <li><b>เลขรายวัน:</b> ปิดไว้เป็นค่าเริ่มต้น คุณสามารถติ๊กเพื่อเปิด/ปิด การแสดงตัวเลขยอดการผลิตของแต่ละวัน ซึ่งจะโชว์ทับอยู่บนตาราง</li>
                     <li><b>ซ่อนวันที่:</b> กดปุ่ม "ซ่อนวันที่" ด้านบนเพื่อพับคอลัมน์วันที่เริ่มและเสร็จเก็บ ทำให้มีพื้นที่ดูแผนภูมิกราฟกว้างขึ้น</li>
                     <li><b>ซ่อน/แสดงแถว (ไอคอนดวงตา):</b> หากมีงานใดที่ไม่ต้องการให้เกะกะบนหน้าจอ สามารถกดปุ่มรูปตาหน้าชื่อขั้นตอนเพื่อซ่อนแถวนั้นได้ หากต้องการกู้คืนให้ติ๊กถูกที่ <b>ดูงานที่ซ่อน</b> ด้านบน แถวจะโชว์แบบจางๆ ให้กดรูปตาเพื่อเลิกซ่อน</li>
-                    <li><b>เลขรายวัน:</b> ติ๊กเพื่อเปิด/ปิด การแสดงตัวเลขยอดการผลิตของแต่ละวันที่ทับอยู่บนตาราง</li>
                     <li><b>จุดสังเกตสี (ไฮไลต์กราฟ):</b> เมื่อ Login แล้ว สามารถ <b>คลิกขวา</b> ที่แท่งกราฟเพื่อเปลี่ยนสีไฮไลต์ได้ (เช่น กำหนดให้เป็นสีชมพูเพื่อเตือนว่าใกล้วันส่งของ) หากคลิกขวาซ้ำสีจะเปลี่ยนไปเรื่อยๆ จนกลับมาเป็นแบบเดิม</li>
                 </ul>
             </div>
@@ -650,6 +659,7 @@
     
     let isLoggedIn = false;
     let currentUser = "";
+    let isInitialRender = true; // ตัวแปรสำหรับเช็คการโหลดครั้งแรก เพื่อเลื่อน Scroll หาวันปัจจุบัน
     
     // โหลดรายชื่องานที่ถูกซ่อนมาจาก LocalStorage
     let hiddenTaskIds = new Set(JSON.parse(localStorage.getItem('jaguar_hidden_tasks') || '[]')); 
@@ -662,7 +672,7 @@
         await fetchAllData();
         setupDragAndDrop();
         setupRealtime(); 
-        setupScrollTracking(); // เริ่มต้นระบบดักจับและจดจำ Scroll
+        setupScrollTracking();
     };
 
     // --- ระบบ Modal คู่มือ ---
@@ -709,8 +719,10 @@
     function setupScrollTracking() {
         const scrollArea = document.getElementById('ganttScrollArea');
         scrollArea.addEventListener('scroll', (e) => {
-            localStorage.setItem('jaguar_scroll_left', e.target.scrollLeft);
-            localStorage.setItem('jaguar_scroll_top', e.target.scrollTop);
+            if (!isInitialRender) { // จะเริ่มจำค่าก็ต่อเมื่อเลื่อนไปหาวันปัจจุบันเสร็จแล้ว
+                localStorage.setItem('jaguar_scroll_left', e.target.scrollLeft);
+                localStorage.setItem('jaguar_scroll_top', e.target.scrollTop);
+            }
         });
 
         window.addEventListener('scroll', () => {
@@ -827,7 +839,6 @@
                 `${SUPABASE_URL}/order_steps?select=*`
             ];
 
-            // อัปเดตเพิ่ม cache: 'no-store' เพื่อป้องกันเบราว์เซอร์เอาข้อมูลเก่ามาโชว์
             const responses = await Promise.all(endpoints.map(url => fetch(url, { 
                 headers: headers,
                 cache: 'no-store' 
@@ -912,6 +923,7 @@
 
     function clearFilters() {
         ['filter_date_from', 'filter_date_to', 'filter_order','filter_po','filter_work','filter_step'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('chk-recent-only').checked = false; // ถ้ากดเคลียร์ให้อนุญาตให้ดูทั้งหมด
         applyFilters();
     }
 
@@ -970,6 +982,13 @@
         const fDateTo = document.getElementById('filter_date_to').value;
         const showDailyNums = document.getElementById('chk-show-daily').checked;
         const showHiddenTasks = document.getElementById('chk-show-hidden').checked;
+        const showRecentOnly = document.getElementById('chk-recent-only').checked;
+
+        // คำนวณช่วง 5 วันล่าสุด
+        let todayStrLocal = formatDateToLocal(new Date());
+        let fiveDaysAgoDate = new Date();
+        fiveDaysAgoDate.setDate(fiveDaysAgoDate.getDate() - 5);
+        let fiveDaysAgoStr = formatDateToLocal(fiveDaysAgoDate);
 
         if(orders.length === 0) {
             thead.innerHTML = `<tr>
@@ -1011,11 +1030,9 @@
                     if (fDateFrom && endDateStr < fDateFrom) return; 
                     if (fDateTo && startDateStr > fDateTo) return;
 
-                    let sDate = new Date(startDateStr);
-                    let eDate = new Date(endDateStr);
-
                     let actualTotal = 0;
                     let dailyLogs = {};
+                    let hasRecentProduction = false;
                     
                     rawData.daily.forEach(dp => {
                         if (dp.id_order === order.id_order && maps.targetIdToStepId[dp.id_target] === stepId) {
@@ -1025,10 +1042,22 @@
                             if (dp.record_date) {
                                 let dStr = String(dp.record_date).substring(0, 10);
                                 dailyLogs[dStr] = (dailyLogs[dStr] || 0) + amt;
+                                
+                                // เช็คว่ามีการผลิตในช่วง 5 วันย้อนหลังหรือไม่
+                                if (dStr >= fiveDaysAgoStr && dStr <= todayStrLocal && amt > 0) {
+                                    hasRecentProduction = true;
+                                }
                             }
                         }
                     });
 
+                    // กรองเฉพาะงานที่มีการเคลื่อนไหวในช่วง 5 วันหลังสุด (ถ้าฟิลเตอร์ถูกเปิด)
+                    if (showRecentOnly && !hasRecentProduction) {
+                        return; // ข้ามงานนี้ไปถ้าไม่มีการผลิตล่าสุด
+                    }
+
+                    let sDate = new Date(startDateStr);
+                    let eDate = new Date(endDateStr);
                     let realPercent = (orderQty > 0) ? (actualTotal / orderQty) * 100 : 0;
 
                     if (sDate < minDate) minDate = new Date(sDate);
@@ -1057,28 +1086,18 @@
             }
         });
 
-        let orderMinDates = {};
-        rowsData.forEach(r => {
-            if (!orderMinDates[r.order_no] || r.startDate < orderMinDates[r.order_no]) {
-                orderMinDates[r.order_no] = r.startDate;
-            }
-        });
-
+        // จัดกลุ่ม (Sorting) ตามเงื่อนไข: ห้ามให้ใบสั่งอื่นมาแทรกแถวเด็ดขาด
         rowsData.sort((a, b) => {
-            let minDateA = orderMinDates[a.order_no].getTime();
-            let minDateB = orderMinDates[b.order_no].getTime();
-            
-            if (minDateA !== minDateB) {
-                return minDateA - minDateB; 
-            }
-            
+            // 1. เรียงตามเลขที่ใบสั่งเป็นหลักก่อน (จัดกลุ่มใบสั่ง)
             let compOrder = String(a.order_no).localeCompare(String(b.order_no), 'th', { numeric: true });
             if (compOrder !== 0) return compOrder;
             
+            // 2. ถ้าใบสั่งเดียวกัน ให้เรียงตามวันที่เริ่ม
             if (a.startDate.getTime() !== b.startDate.getTime()) {
                 return a.startDate.getTime() - b.startDate.getTime();
             }
-
+            
+            // 3. ถ้าใบสั่งเดียวกัน วันเริ่มเท่ากัน เรียงตามชื่อขั้นตอน
             return a.step_name.localeCompare(b.step_name, 'th');
         });
 
@@ -1107,13 +1126,26 @@
             <th class="col-progress">ผลิตได้ / ยอดสั่ง / %</th>
             <th class="col-start">เริ่ม</th>
             <th class="col-end">เสร็จ</th>`;
-        dateHeaders.forEach(d => { 
-            headHtml += `<th class="date-header">${d.getDate()}/${d.getMonth()+1}</th>`; 
+            
+        let todayIndex = -1;
+        dateHeaders.forEach((d, index) => { 
+            let isToday = formatDateToLocal(d) === todayStrLocal;
+            if (isToday) todayIndex = index;
+            // ไฮไลต์วันที่ปัจจุบันเป็นสีแดง
+            let bgStyle = isToday ? 'background-color: var(--neon-red); color: white;' : '';
+            headHtml += `<th class="date-header" style="${bgStyle}">${d.getDate()}/${d.getMonth()+1}</th>`; 
         });
         headHtml += `</tr>`;
         thead.innerHTML = headHtml;
 
         let bodyHtml = '';
+
+        // เตรียมสร้างเส้นไฮไลต์สีแดงแนวตั้งสำหรับคอลัมน์ของวันนี้
+        let todayHighlightHtml = '';
+        if (todayIndex >= 0) {
+            let leftPos = todayIndex * CELL_WIDTH;
+            todayHighlightHtml = `<div style="position: absolute; left: ${leftPos}px; top: 0; width: ${CELL_WIDTH}px; height: 100%; background-color: rgba(255, 51, 102, 0.15); pointer-events: none; z-index: 1;"></div>`;
+        }
 
         rowsData.forEach(row => {
             const offsetDays = Math.ceil(Math.abs(row.startDate - minDate) / 86400000);
@@ -1198,6 +1230,7 @@
                                 background: repeating-linear-gradient(to right, transparent, transparent ${CELL_WIDTH - 1}px, rgba(23,99,60,0.4) ${CELL_WIDTH - 1}px, rgba(23,99,60,0.4) ${CELL_WIDTH}px);">
                     </div>
                     
+                    ${todayHighlightHtml}
                     ${dailyNumbersHtml}
                     
                     <div class="gantt-bar-wrapper ${isEditing ? 'is-editing' : ''} ${isLoggedIn ? 'can-edit' : ''}" 
@@ -1225,10 +1258,30 @@
 
         applyDateColumnVisibility();
         
-        // รอให้ DOM เรนเดอร์เสร็จแล้วค่อยเลื่อนหน้าจอกลับไปยังตำแหน่งเดิม
-        setTimeout(() => {
-            restoreScrollPosition();
-        }, 100);
+        // เลื่อน Scroll ไปยังตำแหน่งของวันปัจจุบันในการโหลดครั้งแรก
+        if (isInitialRender && todayIndex >= 0) {
+            setTimeout(() => {
+                const scrollArea = document.getElementById('ganttScrollArea');
+                let fixedColsWidth = isDateHidden ? (234+170+260) : (234+170+260+115+115);
+                let visibleDateArea = scrollArea.clientWidth - fixedColsWidth;
+                
+                // คำนวณตำแหน่งให้ "วันนี้" เว้นไว้ 15 คอลัมน์ด้านขวาของพื้นที่ตารางที่มองเห็น
+                let cellLeft = todayIndex * CELL_WIDTH;
+                // + 16 * CELL_WIDTH หมายถึงตัวช่องวันนี้ 1 ช่อง + พื้นที่ว่างด้านขวาอีก 15 ช่อง
+                let targetScroll = cellLeft - visibleDateArea + (16 * CELL_WIDTH); 
+                
+                if (targetScroll > 0) {
+                    scrollArea.scrollLeft = targetScroll;
+                    // บันทึกตำแหน่งล่าสุดไว้ เพื่อไม่ให้โดนรีเซ็ตเมื่อดึงข้อมูลครั้งต่อไป
+                    localStorage.setItem('jaguar_scroll_left', scrollArea.scrollLeft);
+                }
+                isInitialRender = false;
+            }, 150);
+        } else {
+            setTimeout(() => {
+                restoreScrollPosition();
+            }, 100);
+        }
     }
 
     function changeCustomColor(e, taskId) {
