@@ -429,6 +429,79 @@
             padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 20px; width: 100%;
         }
         .close-modal-btn:hover { background: var(--neon-red); color: #fff; }
+
+        /* ========================================= */
+        /* CSS สำหรับการพริ้นต์ GANTT CHART */
+        /* ========================================= */
+        @media print {
+            @page { 
+                size: A4 landscape; /* บังคับกระดาษแนวนอน */
+                margin: 10mm; 
+            }
+            
+            /* เปลี่ยนพื้นหลังเป็นสีขาว และตัวอักษรสีดำ */
+            body, .dashboard-container { 
+                background: #ffffff !important; 
+                color: #000000 !important; 
+                border: none !important;
+            }
+            body::before { display: none !important; }
+            
+            /* ซ่อนเมนูค้นหา คู่มือ และปุ่มต่างๆ */
+            .filter-header, .filter-grid, #save-bar, .modal-overlay, .btn-hide-row { 
+                display: none !important; 
+            }
+            
+            /* ปลดล็อคความกว้างตาราง ไม่ให้มี Scrollbar */
+            .gantt-container {
+                overflow: visible !important;
+                max-height: none !important;
+                border: none !important;
+                background: #ffffff !important;
+            }
+            
+            .gantt-table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+            
+            /* ยกเลิกการล็อคคอลัมน์ (Sticky) เพื่อไม่ให้แสดงผลซ้อนทับกันตอนขึ้นหน้าใหม่ */
+            .gantt-table th, .gantt-table td, 
+            .col-step, .col-code, .col-progress, .col-start, .col-end, .date-header {
+                position: static !important; 
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                border: 1px solid #cccccc !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* กำหนดสีหัวตารางตอนพริ้นต์ */
+            .gantt-table thead th {
+                background-color: #f3f4f6 !important;
+                font-weight: bold !important;
+            }
+
+            /* ปรับสีตัวหนังสือให้ชัดเจนขึ้น */
+            .step-name, .step-order, .work-code-text { color: #000000 !important; }
+            .date-input { color: #000000 !important; border: none !important; }
+            
+            /* บังคับให้สีแท่งกราฟแสดงผลตรงตามหน้าจอ */
+            .bar-planned { background-color: #e5e7eb !important; border: 1px solid #9ca3af !important; }
+            .bar-actual { background-color: #00ff88 !important; }
+            .bar-text { color: #000000 !important; text-shadow: none !important; font-weight: bold !important; }
+            
+            /* ลบแถบไฮไลต์สีแดงของวันปัจจุบันออกในตอนพริ้นต์เพื่อให้ดูสะอาดตา */
+            div[style*="rgba(255, 51, 102, 0.15)"] { display: none !important; }
+            
+            /* สำหรับตัวเลขรายวันที่แทรกในกราฟ */
+            span[style*="background: var(--neon-yellow)"] {
+                background: #ffffff !important;
+                color: #000000 !important;
+                border: 1px solid #000000 !important;
+                box-shadow: none !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -452,6 +525,11 @@
                 <button class="btn-action" id="btn-toggle-date" onclick="toggleDateColumns()">
                     <i class="fa-solid fa-eye-slash"></i> ซ่อนวันที่
                 </button>
+                
+                <button class="btn-action" onclick="window.print()" style="border-color: #00ff88; color: #00ff88;">
+                    <i class="fa-solid fa-print"></i> พิมพ์แผนงาน
+                </button>
+
                 <button class="btn-action" onclick="forceSync()">
                     <i class="fa-solid fa-rotate"></i> ดึงข้อมูล
                 </button>
