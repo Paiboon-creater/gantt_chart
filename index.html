@@ -402,7 +402,6 @@
             color: var(--neon-red);
         }
 
-        /* Modal คู่มือ */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(3, 8, 6, 0.85); z-index: 2000;
@@ -430,16 +429,12 @@
         }
         .close-modal-btn:hover { background: var(--neon-red); color: #fff; }
 
-        /* ========================================= */
-        /* CSS สำหรับการพริ้นต์ GANTT CHART */
-        /* ========================================= */
         @media print {
             @page { 
-                size: A4 landscape; /* บังคับกระดาษแนวนอน */
+                size: A4 landscape; 
                 margin: 10mm; 
             }
             
-            /* เปลี่ยนพื้นหลังเป็นสีขาว และตัวอักษรสีดำ */
             body, .dashboard-container { 
                 background: #ffffff !important; 
                 color: #000000 !important; 
@@ -447,12 +442,10 @@
             }
             body::before { display: none !important; }
             
-            /* ซ่อนเมนูค้นหา คู่มือ และปุ่มต่างๆ */
             .filter-header, .filter-grid, #save-bar, .modal-overlay, .btn-hide-row { 
                 display: none !important; 
             }
             
-            /* ปลดล็อคความกว้างตาราง ไม่ให้มี Scrollbar */
             .gantt-container {
                 overflow: visible !important;
                 max-height: none !important;
@@ -465,7 +458,6 @@
                 border-collapse: collapse !important;
             }
             
-            /* ยกเลิกการล็อคคอลัมน์ (Sticky) เพื่อไม่ให้แสดงผลซ้อนทับกันตอนขึ้นหน้าใหม่ */
             .gantt-table th, .gantt-table td, 
             .col-step, .col-code, .col-progress, .col-start, .col-end, .date-header {
                 position: static !important; 
@@ -476,25 +468,20 @@
                 print-color-adjust: exact !important;
             }
 
-            /* กำหนดสีหัวตารางตอนพริ้นต์ */
             .gantt-table thead th {
                 background-color: #f3f4f6 !important;
                 font-weight: bold !important;
             }
 
-            /* ปรับสีตัวหนังสือให้ชัดเจนขึ้น */
             .step-name, .step-order, .work-code-text { color: #000000 !important; }
             .date-input { color: #000000 !important; border: none !important; }
             
-            /* บังคับให้สีแท่งกราฟแสดงผลตรงตามหน้าจอ */
             .bar-planned { background-color: #e5e7eb !important; border: 1px solid #9ca3af !important; }
             .bar-actual { background-color: #00ff88 !important; }
             .bar-text { color: #000000 !important; text-shadow: none !important; font-weight: bold !important; }
             
-            /* ลบแถบไฮไลต์สีแดงของวันปัจจุบันออกในตอนพริ้นต์เพื่อให้ดูสะอาดตา */
             div[style*="rgba(255, 51, 102, 0.15)"] { display: none !important; }
             
-            /* สำหรับตัวเลขรายวันที่แทรกในกราฟ */
             span[style*="background: var(--neon-yellow)"] {
                 background: #ffffff !important;
                 color: #000000 !important;
@@ -573,12 +560,10 @@
             </div>
             <div class="filter-group" style="display: flex; flex-direction: column; justify-content: flex-end; gap: 4px;">
                 <div style="display: flex; gap: 4px;">
-                    <!-- ปรับแต่งส่วนตัวกรองเพิ่ม -->
                     <div class="custom-toggle" style="flex: 1; border-color: var(--neon-red);">
                         <input type="checkbox" id="chk-recent-only" checked onchange="applyFilters()" style="accent-color: var(--neon-red);">
                         <label for="chk-recent-only" style="margin:0; font-size:0.7rem; color:var(--neon-red); cursor:pointer;">อัปเดตล่าสุด 5วัน</label>
                     </div>
-                    <!-- เอา checked ออกจากเลขรายวัน -->
                     <div class="custom-toggle" style="flex: 1;">
                         <input type="checkbox" id="chk-show-daily" onchange="applyFilters()">
                         <label for="chk-show-daily" style="margin:0; font-size:0.7rem; color:var(--neon-green); cursor:pointer;">เลขรายวัน</label>
@@ -634,7 +619,6 @@
         </div>
     </div>
 
-    <!-- Modal คู่มือการใช้งาน -->
     <div id="manualModal" class="modal-overlay">
         <div class="manual-box">
             <div class="manual-header">
@@ -669,7 +653,7 @@
                 <h5>4. ฟังก์ชันการแสดงผลและการจัดเรียง</h5>
                 <ul>
                     <li><b>ตำแหน่งปัจจุบัน (วันนี้):</b> เมื่อเปิดฟอร์ม ระบบจะเลื่อนตารางไปยังวันที่ปัจจุบัน (ไฮไลต์คอลัมน์สีแดง) อัตโนมัติ โดยเว้นพื้นที่ด้านขวาไว้ 15 ช่อง เพื่อให้สามารถดูแผนงานที่กำลังจะมาถึงได้ง่าย</li>
-                    <li><b>การจัดเรียงใบสั่ง:</b> ระบบจะจัดกลุ่มงานตาม <b>เลขที่ใบสั่ง (Order No)</b> ให้อยู่ติดกันเสมอ เพื่อป้องกันไม่ให้มีใบสั่งอื่นมาคั่นหรือแทรกแถว</li>
+                    <li><b>การจัดเรียงใบสั่ง:</b> ระบบจะจัดกลุ่มงานตาม <b>เลขที่ใบสั่ง (Order No)</b> ให้อยู่ติดกันเสมอ และเรียงตามวันที่เริ่มก่อนขึ้นก่อน</li>
                     <li><b>อัปเดตล่าสุด 5วัน:</b> ตัวกรองนี้จะถูกเปิดไว้โดยอัตโนมัติ เพื่อดึงมาเฉพาะงานที่มีการผลิตเคลื่อนไหวในช่วง 5 วันที่ผ่านมา หากต้องการดูงานทั้งหมดให้ติ๊กเครื่องหมายถูกออก</li>
                     <li><b>เลขรายวัน:</b> ปิดไว้เป็นค่าเริ่มต้น คุณสามารถติ๊กเพื่อเปิด/ปิด การแสดงตัวเลขยอดการผลิตของแต่ละวัน ซึ่งจะโชว์ทับอยู่บนตาราง</li>
                     <li><b>ซ่อนวันที่:</b> กดปุ่ม "ซ่อนวันที่" ด้านบนเพื่อพับคอลัมน์วันที่เริ่มและเสร็จเก็บ ทำให้มีพื้นที่ดูแผนภูมิกราฟกว้างขึ้น</li>
@@ -724,8 +708,24 @@
         return `${year}-${month}-${day}`;
     }
 
+    function addWorkingDays(startDate, daysToAdd) {
+        let date = new Date(startDate);
+        if (date.getDay() === 0) {
+            date.setDate(date.getDate() + 1);
+        }
+        
+        let added = 0;
+        while (added < daysToAdd) {
+            date.setDate(date.getDate() + 1);
+            if (date.getDay() !== 0) { 
+                added++;
+            }
+        }
+        return date;
+    }
+
     let rawData = { orders: [], workItems: [], steps: [], targets: [], daily: [], orderSteps: [] };
-    let maps = { workIdToCode: {}, stepIdToName: {}, targetIdToStepId: {}, workIdToStepIds: {} };
+    let maps = { workIdToCode: {}, stepIdToName: {}, targetIdToStepId: {}, workIdToStepIds: {}, stepLevel: {}, stepTargetLimit: {} };
     
     const CELL_WIDTH = 28; 
     let localEdits = {}; 
@@ -737,9 +737,8 @@
     
     let isLoggedIn = false;
     let currentUser = "";
-    let isInitialRender = true; // ตัวแปรสำหรับเช็คการโหลดครั้งแรก เพื่อเลื่อน Scroll หาวันปัจจุบัน
+    let isInitialRender = true;
     
-    // โหลดรายชื่องานที่ถูกซ่อนมาจาก LocalStorage
     let hiddenTaskIds = new Set(JSON.parse(localStorage.getItem('jaguar_hidden_tasks') || '[]')); 
 
     function saveHiddenTasks() {
@@ -753,14 +752,8 @@
         setupScrollTracking();
     };
 
-    // --- ระบบ Modal คู่มือ ---
-    function openManual() {
-        document.getElementById('manualModal').style.display = 'flex';
-    }
-
-    function closeManual() {
-        document.getElementById('manualModal').style.display = 'none';
-    }
+    function openManual() { document.getElementById('manualModal').style.display = 'flex'; }
+    function closeManual() { document.getElementById('manualModal').style.display = 'none'; }
 
     function printManual() {
         const manualContent = document.getElementById('manualContent').innerHTML;
@@ -793,11 +786,10 @@
         }, 300);
     }
 
-    // ฟังก์ชันเปิดการดักจับการเลื่อน Scroll เพื่อบันทึกตำแหน่งล่าสุด
     function setupScrollTracking() {
         const scrollArea = document.getElementById('ganttScrollArea');
         scrollArea.addEventListener('scroll', (e) => {
-            if (!isInitialRender) { // จะเริ่มจำค่าก็ต่อเมื่อเลื่อนไปหาวันปัจจุบันเสร็จแล้ว
+            if (!isInitialRender) { 
                 localStorage.setItem('jaguar_scroll_left', e.target.scrollLeft);
                 localStorage.setItem('jaguar_scroll_top', e.target.scrollTop);
             }
@@ -808,7 +800,6 @@
         });
     }
 
-    // ฟังก์ชันสำหรับเรียกคืนตำแหน่ง Scroll ล่าสุด
     function restoreScrollPosition() {
         const scrollArea = document.getElementById('ganttScrollArea');
         const savedLeft = localStorage.getItem('jaguar_scroll_left');
@@ -935,13 +926,55 @@
 
     function buildMaps() {
         maps.workIdToCode = {}; rawData.workItems.forEach(w => maps.workIdToCode[w.id_work] = w.work_code);
-        maps.stepIdToName = {}; rawData.steps.forEach(s => maps.stepIdToName[s.id_step] = s.step_name);
-        maps.targetIdToStepId = {}; maps.workIdToStepIds = {};
+        
+        maps.stepIdToName = {}; 
+        maps.stepLevel = {}; 
+        rawData.steps.forEach(s => {
+            maps.stepIdToName[s.id_step] = s.step_name;
+            maps.stepLevel[s.id_step] = s.level || 999;
+        });
+
+        maps.targetIdToStepId = {}; 
+        maps.workIdToStepIds = {};
+        maps.stepTargetLimit = {}; 
         rawData.targets.forEach(t => {
             maps.targetIdToStepId[t.id_target] = t.id_step;
+            
             if(!maps.workIdToStepIds[t.id_work]) maps.workIdToStepIds[t.id_work] = new Set();
             maps.workIdToStepIds[t.id_work].add(t.id_step);
+            
+            maps.stepTargetLimit[`${t.id_work}_${t.id_step}`] = t.target_amount || 0;
         });
+    }
+
+    function autoCalculateDatesForOrder(order) {
+        let stepIds = Array.from(maps.workIdToStepIds[order.id_work] || []);
+        if (stepIds.length === 0) return {};
+        
+        stepIds.sort((a, b) => (maps.stepLevel[a] - maps.stepLevel[b]));
+        
+        let calculated = {};
+        let orderStart = new Date(order.start_date || new Date());
+        
+        let currentStepStart = addWorkingDays(orderStart, 5);
+        
+        stepIds.forEach(stepId => {
+            let targetPerHour = maps.stepTargetLimit[`${order.id_work}_${stepId}`] || 0;
+            let dailyCapacity = targetPerHour * 8;
+            let qty = order.quantity || 0;
+            
+            let daysNeeded = (dailyCapacity > 0 && qty > 0) ? Math.ceil(qty / dailyCapacity) : 1;
+            let stepEnd = addWorkingDays(currentStepStart, daysNeeded - 1);
+            
+            calculated[stepId] = {
+                start: formatDateToLocal(currentStepStart),
+                end: formatDateToLocal(stepEnd)
+            };
+            
+            currentStepStart = addWorkingDays(currentStepStart, 1);
+        });
+        
+        return calculated;
     }
 
     function populateDropdowns(fOrder = '', fPo = '', fWork = '', fStep = '') {
@@ -969,7 +1002,7 @@
 
         let validStepIds = new Set();
         validForStep.forEach(o => { if(maps.workIdToStepIds[o.id_work]) maps.workIdToStepIds[o.id_work].forEach(id => validStepIds.add(id)); });
-        const steps = [...validStepIds].map(id => ({ id: id, name: getStepAbbr(maps.stepIdToName[id]) })).filter(s => s.name).sort((a,b) => a.name.localeCompare(b.name, 'th'));
+        const steps = [...validStepIds].map(id => ({ id: id, name: getStepAbbr(maps.stepIdToName[id]) })).filter(s => s.name && !s.name.includes('งานแก้')).sort((a,b) => a.name.localeCompare(b.name, 'th'));
 
         const upd = (id, arr, def, val) => {
             let el = document.getElementById(id);
@@ -1001,7 +1034,7 @@
 
     function clearFilters() {
         ['filter_date_from', 'filter_date_to', 'filter_order','filter_po','filter_work','filter_step'].forEach(id => document.getElementById(id).value = '');
-        document.getElementById('chk-recent-only').checked = false; // ถ้ากดเคลียร์ให้อนุญาตให้ดูทั้งหมด
+        document.getElementById('chk-recent-only').checked = false; 
         applyFilters();
     }
 
@@ -1062,7 +1095,6 @@
         const showHiddenTasks = document.getElementById('chk-show-hidden').checked;
         const showRecentOnly = document.getElementById('chk-recent-only').checked;
 
-        // คำนวณช่วง 5 วันล่าสุด
         let todayStrLocal = formatDateToLocal(new Date());
         let fiveDaysAgoDate = new Date();
         fiveDaysAgoDate.setDate(fiveDaysAgoDate.getDate() - 5);
@@ -1089,9 +1121,15 @@
             let orderQty = order.quantity || 0;
             let stepIds = maps.workIdToStepIds[order.id_work]; 
             
+            let autoCalculatedDates = autoCalculateDatesForOrder(order);
+            
             if (stepIds) {
                 stepIds.forEach(stepId => {
                     if (filteredStepId && String(stepId) !== filteredStepId) return;
+                    
+                    let stepNameFull = maps.stepIdToName[stepId] || '';
+                    // ⚡️ ไม่แสดงขั้นตอนที่เป็น "งานแก้"
+                    if (stepNameFull.includes('งานแก้')) return;
                     
                     let taskId = `${order.id_order}_${stepId}`; 
                     let isTaskHidden = hiddenTaskIds.has(taskId);
@@ -1100,8 +1138,11 @@
 
                     let oStep = rawData.orderSteps.find(os => os.id_order === order.id_order && os.id_step === stepId);
                     
-                    let startDateStr = (localEdits[taskId] && localEdits[taskId].startDate) ? localEdits[taskId].startDate : ((oStep && oStep.start_date) ? oStep.start_date : order.start_date);
-                    let endDateStr = (localEdits[taskId] && localEdits[taskId].endDate) ? localEdits[taskId].endDate : ((oStep && oStep.end_date) ? oStep.end_date : order.end_date);
+                    let baseStart = (oStep && oStep.start_date) ? oStep.start_date : (autoCalculatedDates[stepId] ? autoCalculatedDates[stepId].start : order.start_date);
+                    let baseEnd = (oStep && oStep.end_date) ? oStep.end_date : (autoCalculatedDates[stepId] ? autoCalculatedDates[stepId].end : order.end_date);
+
+                    let startDateStr = (localEdits[taskId] && localEdits[taskId].startDate) ? localEdits[taskId].startDate : baseStart;
+                    let endDateStr = (localEdits[taskId] && localEdits[taskId].endDate) ? localEdits[taskId].endDate : baseEnd;
 
                     if(!startDateStr || !endDateStr) return;
 
@@ -1121,7 +1162,6 @@
                                 let dStr = String(dp.record_date).substring(0, 10);
                                 dailyLogs[dStr] = (dailyLogs[dStr] || 0) + amt;
                                 
-                                // เช็คว่ามีการผลิตในช่วง 5 วันย้อนหลังหรือไม่
                                 if (dStr >= fiveDaysAgoStr && dStr <= todayStrLocal && amt > 0) {
                                     hasRecentProduction = true;
                                 }
@@ -1129,9 +1169,8 @@
                         }
                     });
 
-                    // กรองเฉพาะงานที่มีการเคลื่อนไหวในช่วง 5 วันหลังสุด (ถ้าฟิลเตอร์ถูกเปิด)
                     if (showRecentOnly && !hasRecentProduction) {
-                        return; // ข้ามงานนี้ไปถ้าไม่มีการผลิตล่าสุด
+                        return;
                     }
 
                     let sDate = new Date(startDateStr);
@@ -1150,7 +1189,7 @@
                         step_id: stepId,
                         order_no: order.order_no || 'N/A',
                         work_code: wCode,
-                        step_name: getStepAbbr(maps.stepIdToName[stepId]) || 'Unknown',
+                        step_name: getStepAbbr(stepNameFull) || 'Unknown',
                         target: orderQty,
                         actual: actualTotal,
                         dailyLogs: dailyLogs,
@@ -1158,25 +1197,23 @@
                         startDate: sDate,
                         endDate: eDate,
                         startDateStr: startDateStr,
-                        endDateStr: endDateStr
+                        endDateStr: endDateStr,
+                        isAutoCalc: (!oStep) 
                     });
                 });
             }
         });
 
-        // จัดกลุ่ม (Sorting) ตามเงื่อนไข: ห้ามให้ใบสั่งอื่นมาแทรกแถวเด็ดขาด
+        // ⚡️ จัดเรียงลำดับ: จัดกลุ่มตาม Order No ก่อน แล้วเรียงตาม "วันที่เริ่ม" (เก่าไปใหม่) ให้อยู่แถวบนๆ
         rowsData.sort((a, b) => {
-            // 1. เรียงตามเลขที่ใบสั่งเป็นหลักก่อน (จัดกลุ่มใบสั่ง)
             let compOrder = String(a.order_no).localeCompare(String(b.order_no), 'th', { numeric: true });
             if (compOrder !== 0) return compOrder;
             
-            // 2. ถ้าใบสั่งเดียวกัน ให้เรียงตามวันที่เริ่ม
             if (a.startDate.getTime() !== b.startDate.getTime()) {
                 return a.startDate.getTime() - b.startDate.getTime();
             }
             
-            // 3. ถ้าใบสั่งเดียวกัน วันเริ่มเท่ากัน เรียงตามชื่อขั้นตอน
-            return a.step_name.localeCompare(b.step_name, 'th');
+            return (maps.stepLevel[a.step_id] || 99) - (maps.stepLevel[b.step_id] || 99);
         });
 
         if (rowsData.length === 0) {
@@ -1209,7 +1246,6 @@
         dateHeaders.forEach((d, index) => { 
             let isToday = formatDateToLocal(d) === todayStrLocal;
             if (isToday) todayIndex = index;
-            // ไฮไลต์วันที่ปัจจุบันเป็นสีแดง
             let bgStyle = isToday ? 'background-color: var(--neon-red); color: white;' : '';
             headHtml += `<th class="date-header" style="${bgStyle}">${d.getDate()}/${d.getMonth()+1}</th>`; 
         });
@@ -1218,7 +1254,6 @@
 
         let bodyHtml = '';
 
-        // เตรียมสร้างเส้นไฮไลต์สีแดงแนวตั้งสำหรับคอลัมน์ของวันนี้
         let todayHighlightHtml = '';
         if (todayIndex >= 0) {
             let leftPos = todayIndex * CELL_WIDTH;
@@ -1226,7 +1261,7 @@
         }
 
         rowsData.forEach(row => {
-            const offsetDays = Math.ceil(Math.abs(row.startDate - minDate) / 86400000);
+            const offsetDays = Math.ceil((row.startDate - minDate) / 86400000);
             const durationDays = Math.ceil(Math.abs(row.endDate - row.startDate) / 86400000) + 1; 
 
             let percentWidth = Math.min(row.realPercent, 100); 
@@ -1252,13 +1287,17 @@
                 ? `<button onclick="unhideRow('${row.taskId}')" class="btn-hide-row" title="เลิกซ่อนแถวนี้" style="color: var(--neon-yellow);"><i class="fa-solid fa-eye"></i></button>`
                 : `<button onclick="hideRow('${row.taskId}')" class="btn-hide-row" title="ซ่อนแถวนี้"><i class="fa-solid fa-eye-slash"></i></button>`;
 
+            let autoCalcHint = row.isAutoCalc ? `title="แผนงานจากการคำนวณอัตโนมัติ (ยังไม่ได้บันทึก)" style="color: #63b3ed;"` : '';
+
             bodyHtml += `<tr style="${rowStyle}">`;
             
             bodyHtml += `
                 <td class="col-step" style="padding: 0 8px;">
                     <div style="display: grid; grid-template-columns: 24px 80px auto; align-items: center; width: 100%; height: 100%;">
                         ${eyeButtonHtml}
-                        <span class="step-name" style="text-align: left; ${row.isHidden ? 'text-decoration: line-through;' : ''}">${row.step_name}</span> 
+                        <span class="step-name" style="text-align: left; ${row.isHidden ? 'text-decoration: line-through;' : ''}" ${autoCalcHint}>
+                            ${row.step_name} ${row.isAutoCalc ? '<i class="fa-solid fa-bolt" style="font-size: 0.6rem; color: #f5a623;"></i>' : ''}
+                        </span> 
                         <span class="step-order" style="text-align: left;">[${row.order_no}]</span>
                     </div>
                 </td>
@@ -1336,21 +1375,17 @@
 
         applyDateColumnVisibility();
         
-        // เลื่อน Scroll ไปยังตำแหน่งของวันปัจจุบันในการโหลดครั้งแรก
         if (isInitialRender && todayIndex >= 0) {
             setTimeout(() => {
                 const scrollArea = document.getElementById('ganttScrollArea');
                 let fixedColsWidth = isDateHidden ? (234+170+260) : (234+170+260+115+115);
                 let visibleDateArea = scrollArea.clientWidth - fixedColsWidth;
                 
-                // คำนวณตำแหน่งให้ "วันนี้" เว้นไว้ 15 คอลัมน์ด้านขวาของพื้นที่ตารางที่มองเห็น
                 let cellLeft = todayIndex * CELL_WIDTH;
-                // + 16 * CELL_WIDTH หมายถึงตัวช่องวันนี้ 1 ช่อง + พื้นที่ว่างด้านขวาอีก 15 ช่อง
                 let targetScroll = cellLeft - visibleDateArea + (16 * CELL_WIDTH); 
                 
                 if (targetScroll > 0) {
                     scrollArea.scrollLeft = targetScroll;
-                    // บันทึกตำแหน่งล่าสุดไว้ เพื่อไม่ให้โดนรีเซ็ตเมื่อดึงข้อมูลครั้งต่อไป
                     localStorage.setItem('jaguar_scroll_left', scrollArea.scrollLeft);
                 }
                 isInitialRender = false;
@@ -1394,9 +1429,20 @@
         document.getElementById('save-bar').classList.remove('show');
     }
 
-    // ฟังก์ชัน saveEdits สำหรับการ Upsert ข้อมูลที่แก้ไขแล้ว
     async function saveEdits() {
         if (!isLoggedIn) return;
+        
+        const tableInputs = document.querySelectorAll('.date-input');
+        tableInputs.forEach(input => {
+            const taskId = input.id.replace('start_', '').replace('end_', '');
+            if (!localEdits[taskId]) {
+                localEdits[taskId] = {
+                    startDate: document.getElementById(`start_${taskId}`).value,
+                    endDate: document.getElementById(`end_${taskId}`).value
+                };
+            }
+        });
+
         if (Object.keys(localEdits).length === 0) {
             cancelEdits();
             return;
@@ -1413,7 +1459,6 @@
                 const orderId = parseInt(orderIdStr);
                 const stepId = parseInt(stepIdStr);
 
-                // เช็คว่ามีข้อมูลเดิมอยู่แล้วหรือไม่
                 const existingStep = rawData.orderSteps.find(os => os.id_order === orderId && os.id_step === stepId);
                 
                 let url = '';
@@ -1421,7 +1466,6 @@
                 let payload = {};
                 
                 if (existingStep) {
-                    // กรณีอัปเดต (PATCH): ส่งแค่ start_date และ end_date
                     url = `${SUPABASE_URL}/order_steps?id_order=eq.${orderId}&id_step=eq.${stepId}`;
                     method = 'PATCH';
                     payload = {
@@ -1429,7 +1473,6 @@
                         end_date: dates.endDate
                     };
                 } else {
-                    // กรณีสร้างใหม่ (POST): ส่งครบทุกฟิลด์
                     url = `${SUPABASE_URL}/order_steps`;
                     method = 'POST';
                     payload = {
@@ -1456,7 +1499,7 @@
 
             await Promise.all(updatePromises);
             
-            alert('บันทึกข้อมูลวันที่สำเร็จแล้ว');
+            alert('บันทึกแผนงานเรียบร้อยแล้ว');
             
             editingTaskId = null;
             localEdits = {}; 
@@ -1577,7 +1620,6 @@
         });
     }
     
-    // --- ระบบป้องกัน Realtime หลุดเวลากดย้อนกลับ (Back-Forward Cache) ---
     window.addEventListener('pageshow', function (event) {
         if (event.persisted) {
             console.log("โหลดหน้าเว็บจาก Cache - กำลังเชื่อมต่อฐานข้อมูลใหม่...");
