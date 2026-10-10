@@ -110,7 +110,7 @@
             margin-bottom: 4px;
         }
 
-        /* ตกแต่ง Select2 Smart Dropdown ให้สวยงาม */
+        /* ตกแต่ง Select2 Smart Dropdown */
         .select2-container--default .select2-selection--single {
             background-color: var(--input-bg);
             border: 1px solid var(--border-dim);
@@ -650,7 +650,7 @@
 
     async function fetchAllData() {
         try {
-            // ดึงเฉพาะ Orders ที่มี is_closed = false (ยังไม่ปิดงาน)
+            // ดึงเฉพาะ Orders ที่ยังไม่ปิดงาน (is_closed = false)
             const endpoints = [
                 `${SUPABASE_URL}/orders?select=*&is_closed=eq.false`,
                 `${SUPABASE_URL}/work_items?select=*`,
@@ -672,7 +672,7 @@
                 orderSteps: data[5] || []
             };
 
-            // กรอง orderSteps ให้เหลือเฉพาะที่ตรงกับ orders ที่ยังไม่ปิด
+            // กรอง orderSteps เฉพาะ id_order ที่สอดคล้องกับ orders ที่ยังเปิดอยู่
             const activeOrderIds = new Set(rawData.orders.map(o => o.id_order));
             rawData.orderSteps = rawData.orderSteps.filter(os => activeOrderIds.has(os.id_order));
 
@@ -688,6 +688,7 @@
             initialRender = false;
         } catch (err) {
             console.error("Error fetching data:", err);
+            document.getElementById('ganttBody').innerHTML = `<tr><td colspan="6" class="text-danger text-center py-4">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>`;
         }
     }
 
@@ -718,7 +719,7 @@
             selStep.innerHTML += `<option value="${s.id_step}">${s.step_name}</option>`;
         });
 
-        // Set ค่าเดิมกลับเข้าไปหลังอัปเดตดรอปดาวน์
+        // คืนค่าฟิลเตอร์ที่เคยเลือกไว้
         $('#filter_order').val(currentOrder).trigger('change.select2');
         $('#filter_po').val(currentPo).trigger('change.select2');
         $('#filter_work').val(currentWork).trigger('change.select2');
@@ -804,4 +805,57 @@
             const endDateVal = localEdits[os.id_plan_step]?.end_date || os.end_date || '';
 
             bodyHtml += `<tr>
-                <td class="col-step text-start"><span class="step-name">${stepObj.step_name || 'Step ' + os.id
+                <td class="col-step text-start"><span class="step-name">${stepObj.step_name || 'Step ' + os.id_step}</span></td>
+                <td class="col-code"><span class="work-code-text">${workObj.work_code || '-'}</span></td>
+                <td class="col-progress">0%</td>
+                <td class="col-start"><input type="date" class="date-input" value="${startDateVal}" onchange="handleDateChange(${os.id_plan_step}, 'start_date', this.value)"></td>
+                <td class="col-end"><input type="date" class="date-input" value="${endDateVal}" onchange="handleDateChange(${os.id_plan_step}, 'end_date', this.value)"></td>`;
+            
+            dateCols.forEach(() => {
+                bodyHtml += `<td></td>`;
+            });
+            bodyHtml += `</tr>`;
+        });
+
+        tbody.innerHTML = bodyHtml || `<tr><td colspan="6" class="text-center py-4 text-muted">ไม่พบข้อมูลตามเงื่อนไขที่กรอง</td></tr>`;
+        initResizableColumns();
+    }
+
+    function handleDateChange(idPlanStep, field, value) {
+        if (!localEdits[idPlanStep]) {
+            const original = rawData.orderSteps.find(o => o.id_plan_step === idPlanStep) || {};
+            localEdits[idPlanStep] = { start_date: original.start_date, end_date: original.end_date };
+        }
+        localEdits[idPlanStep][field] = value;
+        document.getElementById('save-bar').classList.add('show');
+    }
+
+    function cancelEdits() {
+        localEdits = {};
+        document.getElementById('save-bar').classList.remove('show');
+        renderGanttChart();
+    }
+
+    async function saveEdits() {
+        try {
+            for (const [idPlanStep, edits] of Object.entries(localEdits)) {
+                const response = await fetch(`${SUPABASE_URL}/order_steps?id_plan_step=eq.${idPlanStep}`, {
+                    method: 'PATCH',
+                    headers: headers,
+                    body: JSON.stringify(edits)
+                });
+                if (!response.ok) throw new Error("Update failed");
+            }
+
+            alert("บันทึกแผนงานเรียบร้อยแล้ว");
+            localEdits = {};
+            document.getElementById('save-bar').classList.remove('show');
+            await fetchAllData();
+        } catch (err) {
+            console.error("Save error:", err);
+            alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง");
+        }
+    }
+</script>
+</body>
+</html>
