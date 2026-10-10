@@ -3,45 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JAGUAR GANTT CHART // CLEAN THEME</title>
-    
-    <!-- Bootstrap & FontAwesome -->
+    <title>JAGUAR GANTT CHART // STOCK BOARD THEME</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- jQuery & Select2 สำหรับตัวกรองเลือกหลายรายการ -->
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
     <style>
         :root {
-            /* โทนสว่าง สบายตา */
-            --bg-dark: #f0f2f5;
-            --panel-bg: #ffffff;
-            --border-dim: #cbd5e1;
-            --text-main: #1e293b;
-            --text-label: #475569;
-            --text-muted: #64748b;
-            
-            /* สีหลัก (Primary Colors) */
-            --primary-color: #2563eb;     /* น้ำเงิน */
-            --success-color: #10b981;     /* เขียว */
-            --warning-color: #f59e0b;     /* ส้ม/เหลือง */
-            --danger-color: #ef4444;      /* แดง */
-            
-            --input-bg: #f8fafc;
-            --input-text: #0f172a;
-            --table-bg: #ffffff;
-            
-            /* สีกราฟ Gantt */
-            --bar-planned: #e2e8f0;       
-            --bar-actual: #2563eb;        
-            
-            --cell-width: 45px; 
+            --bg-dark: #030806;
+            --panel-bg: rgba(7, 24, 16, 0.95);
+            --border-neon: #00ff88;
+            --border-dim: #17633c;
+            --text-main: #f0fdf7;
+            --text-label: #a7e0c4;
+            --text-muted: #8ca89a;
+            --neon-green: #00ff88;
+            --neon-glow: rgba(0, 255, 136, 0.3);
+            --neon-yellow: #f5a623;
+            --neon-red: #ff3366;
+            --input-bg: #112a1e;
+            --input-text: #ffffff;
+            --table-bg: #071910;
+            --bar-planned: #113a24;
+            --bar-actual: #00ff88;
+            --cell-width: 28px; 
         }
 
         body {
@@ -49,159 +34,124 @@
             color: var(--text-main);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 15px;
+            padding: 10px 15px;
             overflow-x: hidden;
             -webkit-text-size-adjust: 100%;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(3, 8, 6, 0.95), rgba(5, 20, 12, 0.9)),
+                        url('https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1200&q=80') no-repeat center center;
+            background-size: cover;
+            z-index: -1;
+            filter: brightness(0.3) contrast(1.2) hue-rotate(60deg);
         }
 
         .dashboard-container {
             width: 100%;
             background: var(--panel-bg);
             border: 1px solid var(--border-dim);
-            border-radius: 8px;
-            padding: 15px;
+            border-radius: 6px;
+            padding: 12px;
             box-sizing: border-box;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 15px;
         }
 
         .filter-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #f1f5f9;
-            padding-bottom: 12px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border-dim);
+            padding-bottom: 8px;
         }
 
         .filter-title {
             font-weight: bold;
-            color: var(--primary-color);
-            font-size: 1.1rem;
+            color: var(--neon-green);
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
             gap: 8px;
+            text-transform: uppercase;
         }
 
         .sync-status {
-            font-size: 0.8rem;
-            color: var(--success-color);
+            font-size: 0.7rem;
+            color: var(--neon-green);
             display: flex;
             align-items: center;
             gap: 6px;
-            background: #dcfce7;
-            padding: 4px 10px;
+            background: rgba(0, 255, 136, 0.1);
+            padding: 3px 8px;
             border-radius: 4px;
-            border: 1px solid var(--success-color);
+            border: 1px solid var(--neon-green);
         }
 
         .filter-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
         }
 
         .filter-group {
             flex: 1;
-            min-width: 140px;
+            min-width: 130px;
         }
 
         .filter-group label {
             display: block;
-            font-size: 0.8rem;
-            font-weight: 600;
+            font-size: 0.7rem;
             color: var(--text-label);
             margin-bottom: 4px;
         }
 
         .form-select-stock {
             width: 100%;
-            padding: 6px 10px;
+            padding: 4px 8px;
             background-color: var(--input-bg);
             border: 1px solid var(--border-dim);
             color: var(--input-text);
             border-radius: 4px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             outline: none;
-            transition: border-color 0.2s;
-        }
-        .form-select-stock:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
-        }
-
-        /* ตกแต่ง Select2 ให้เข้ากับธีม */
-        .select2-container--default .select2-selection--multiple {
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-dim);
-            border-radius: 4px;
-            min-height: 34px;
-        }
-        .select2-container--default.select2-container--focus .select2-selection--multiple {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
-        }
-        .select2-dropdown {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            font-size: 0.85rem;
-            border: 1px solid var(--primary-color);
-        }
-        .select2-container--default .select2-selection--multiple .select2-selection__choice {
-            background-color: var(--primary-color);
-            border: 1px solid var(--primary-color);
-            color: #fff;
-            border-radius: 3px;
-            padding: 2px 6px;
-        }
-        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-            color: #fff;
-            margin-right: 5px;
         }
 
         .btn-action {
-            background: #ffffff;
-            color: #475569;
-            border: 1px solid #cbd5e1;
-            padding: 6px 12px;
+            background: #212529;
+            color: #ced4da;
+            border: 1px solid #495057;
+            padding: 4px 10px;
             border-radius: 4px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 0.75rem;
             cursor: pointer;
             transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
         }
         .btn-action:hover {
-            background: #f8fafc;
-            color: var(--primary-color);
-            border-color: var(--primary-color);
+            background: #343a40;
+            color: #fff;
         }
-        
-        .btn-primary-action {
-            background: var(--primary-color);
-            color: #ffffff;
-            border: 1px solid var(--primary-color);
+        .btn-login {
+            background: rgba(245, 166, 35, 0.1);
+            color: var(--neon-yellow);
+            border: 1px solid var(--neon-yellow);
         }
-        .btn-primary-action:hover {
-            background: #1d4ed8;
-            color: #ffffff;
+        .btn-login:hover {
+            background: var(--neon-yellow);
+            color: #000;
         }
-
-        .btn-print {
-            background: #10b981;
-            color: #ffffff;
-            border: 1px solid #10b981;
+        .btn-logout {
+            background: rgba(255, 51, 102, 0.1);
+            color: var(--neon-red);
+            border: 1px solid var(--neon-red);
         }
-        .btn-print:hover {
-            background: #059669;
-            color: #ffffff;
+        .btn-logout:hover {
+            background: var(--neon-red);
+            color: #fff;
         }
-
-        .btn-login { background: #f0fdf4; color: var(--success-color); border-color: var(--success-color); }
-        .btn-login:hover { background: var(--success-color); color: #fff; }
-        .btn-logout { background: #fef2f2; color: var(--danger-color); border-color: var(--danger-color); }
-        .btn-logout:hover { background: var(--danger-color); color: #fff; }
 
         .gantt-header {
             display: flex;
@@ -211,47 +161,22 @@
         }
 
         .gantt-title {
-            font-size: 1rem;
+            font-size: 0.85rem;
             font-weight: bold;
-            color: var(--text-main);
+            color: var(--neon-yellow);
         }
 
         .gantt-legend {
             display: flex;
-            gap: 15px;
-            font-size: 0.8rem;
-            color: var(--text-label);
-            font-weight: 500;
+            gap: 12px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
         }
 
-        .legend-item { display: flex; align-items: center; gap: 6px; }
-        .box-planned { width: 12px; height: 12px; background: var(--bar-planned); border: 1px solid #94a3b8; border-radius: 2px;}
-        .box-actual { width: 12px; height: 12px; background: var(--bar-actual); border-radius: 2px;}
-
-        #ganttCardWrapper {
-            position: relative;
-            background: var(--panel-bg);
-            transition: all 0.3s ease;
-        }
-        #ganttCardWrapper.fullscreen {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            z-index: 99999 !important;
-            padding: 15px !important;
-            margin: 0 !important;
-            border-radius: 0 !important;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            background: #f8fafc;
-        }
-        #ganttCardWrapper.fullscreen .gantt-container {
-            max-height: calc(100vh - 90px) !important;
-            flex: 1;
-        }
+        .legend-item { display: flex; align-items: center; gap: 4px; }
+        .box-planned { width: 10px; height: 10px; background: var(--bar-planned); border: 1px solid var(--border-dim); }
+        .box-actual { width: 10px; height: 10px; background: var(--bar-actual); }
+        .box-custom { width: 10px; height: 10px; background: #ff00ff; border: 1px solid #fff; }
 
         .gantt-container {
             width: 100%;
@@ -260,7 +185,6 @@
             background: var(--table-bg);
             max-height: 70vh;
             position: relative;
-            border-radius: 6px;
         }
 
         .gantt-table {
@@ -270,12 +194,12 @@
         }
 
         .gantt-table th, .gantt-table td {
-            border: 1px solid #e2e8f0;
-            padding: 4px 8px;
+            border: 1px solid rgba(23, 99, 60, 0.4);
+            padding: 4px 6px;
             text-align: center;
             color: var(--text-main);
-            font-size: 0.85rem;
-            height: 45px; 
+            font-size: 0.75rem;
+            height: 34px;
             white-space: nowrap;
             box-sizing: border-box;
         }
@@ -284,15 +208,14 @@
             position: sticky;
             top: -1px; 
             z-index: 20; 
-            background-color: #f1f5f9;
-            font-weight: 600;
+            background-color: #05140c;
         }
 
-        .col-step { position: sticky; left: 0; background-color: #ffffff; z-index: 11; min-width: 250px; max-width: 250px; border-right: 2px solid var(--border-dim); }
-        .col-code { position: sticky; left: 250px; background-color: #ffffff; z-index: 11; text-align: left; min-width: 170px; max-width: 170px; border-right: 2px solid var(--border-dim); }
-        .col-progress { position: sticky; left: 420px; background-color: #ffffff; z-index: 11; text-align: center; min-width: 260px; max-width: 260px; border-right: 2px solid var(--border-dim); }
-        .col-start { position: sticky; left: 680px; background-color: #ffffff; z-index: 11; text-align: center; min-width: 115px; max-width: 115px; border-right: 1px solid var(--border-dim); }
-        .col-end { position: sticky; left: 795px; background-color: #ffffff; z-index: 11; text-align: center; min-width: 115px; max-width: 115px; border-right: 2px solid var(--border-dim); }
+        .col-step { position: sticky; left: 0; background-color: #06170e; z-index: 11; min-width: 234px; max-width: 234px; border-right: 1px solid var(--border-dim); }
+        .col-code { position: sticky; left: 234px; background-color: #06170e; z-index: 11; text-align: left; min-width: 170px; max-width: 170px; border-right: 1px solid var(--border-dim); }
+        .col-progress { position: sticky; left: 404px; background-color: #06170e; z-index: 11; text-align: center; min-width: 260px; max-width: 260px; border-right: 1px solid var(--border-dim); }
+        .col-start { position: sticky; left: 664px; background-color: #06170e; z-index: 11; text-align: center; min-width: 115px; max-width: 115px; border-right: 1px solid var(--border-dim); }
+        .col-end { position: sticky; left: 779px; background-color: #06170e; z-index: 11; text-align: center; min-width: 115px; max-width: 115px; border-right: 2px solid var(--border-dim); }
 
         .gantt-table thead .col-step, 
         .gantt-table thead .col-code, 
@@ -300,15 +223,15 @@
         .gantt-table thead .col-start,
         .gantt-table thead .col-end {
             z-index: 30; 
-            background-color: #e2e8f0;
-            color: #0f172a;
+            background-color: #030806;
+            color: var(--neon-green);
         }
 
         tr:hover td.col-step, 
         tr:hover td.col-code, 
         tr:hover td.col-progress,
         tr:hover td.col-start,
-        tr:hover td.col-end { background-color: #f8fafc; }
+        tr:hover td.col-end { background-color: #0b2e1c; }
 
         .table-hide-dates .col-start,
         .table-hide-dates .col-end { display: none !important; }
@@ -318,48 +241,56 @@
             min-width: var(--cell-width) !important;
             max-width: var(--cell-width) !important;
             width: var(--cell-width) !important;
-            padding: 6px 0 !important;
-            background-color: #f1f5f9;
-            color: #475569;
-            font-size: 0.8rem;
+            padding: 4px 0 !important;
+            background-color: #05140c;
+            color: #a7e0c4;
+            font-size: 0.7rem;
+            font-weight: bold;
             position: sticky;
             top: -1px;
             z-index: 20;
         }
 
-        .step-name { font-weight: 700; color: var(--primary-color); }
-        .step-order { color: var(--text-muted); font-size: 0.8rem; margin-left: 4px;}
-        .work-code-text { color: var(--text-main); font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 0.85rem; font-weight: 600; }
+        .step-name { font-weight: bold; color: var(--text-main); }
+        .step-order { color: var(--neon-yellow); font-size: 0.75rem; }
+        .work-code-text { color: #8ca89a; font-family: 'Courier New', monospace; font-size: 0.8rem; font-weight: bold; }
 
         .date-input {
             background: transparent;
             border: 1px solid transparent;
-            color: var(--text-main);
-            font-family: inherit;
-            font-size: 0.85rem;
+            color: var(--neon-yellow);
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
             width: 100%;
             outline: none;
             text-align: center;
             cursor: pointer;
-            border-radius: 4px;
+            border-radius: 3px;
         }
         .date-input:focus, .date-input:hover:not(:disabled) {
-            border: 1px solid var(--primary-color);
-            background-color: #f8fafc;
+            border: 1px solid var(--border-dim);
+            background-color: rgba(255, 255, 255, 0.05);
         }
         .date-input:disabled {
             color: var(--text-muted);
             cursor: not-allowed;
-            opacity: 0.7;
+            opacity: 0.8;
+        }
+        .date-input::-webkit-calendar-picker-indicator {
+            filter: invert(1) sepia(1) saturate(5) hue-rotate(35deg);
+            cursor: pointer;
+        }
+        .date-input:disabled::-webkit-calendar-picker-indicator {
+            display: none;
         }
 
         .gantt-bar-wrapper {
             position: absolute;
-            height: 26px; 
-            top: 9px;
-            border-radius: 4px;
+            height: 20px;
+            top: 6px;
+            border-radius: 2px;
             z-index: 5;
-            transition: box-shadow 0.2s;
+            transition: box-shadow 0.2s, background-color 0.2s;
         }
         .gantt-bar-wrapper.can-edit { cursor: pointer; }
 
@@ -367,17 +298,15 @@
             position: absolute;
             left: 0; top: 0; height: 100%; width: 100%;
             background-color: var(--bar-planned);
-            border: 1px solid #cbd5e1;
-            border-radius: 4px;
+            border-radius: 2px;
             z-index: 1;
-            box-sizing: border-box;
         }
 
         .bar-actual {
             position: absolute;
             left: 0; top: 0; height: 100%;
             background-color: var(--bar-actual);
-            border-radius: 4px;
+            border-radius: 2px;
             z-index: 2;
         }
 
@@ -386,41 +315,40 @@
             width: 100%;
             text-align: center;
             z-index: 3;
-            color: #ffffff;
-            font-size: 0.75rem;
+            color: #000;
+            font-size: 0.65rem;
             font-weight: bold;
-            line-height: 26px;
+            line-height: 20px;
             pointer-events: none;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
         }
         
         .bar-text.low-percent {
             color: var(--text-main);
-            text-shadow: none;
+            text-shadow: 1px 1px 1px #000;
         }
 
         .gantt-bar-wrapper.is-editing {
             z-index: 15 !important;
-            box-shadow: 0 0 0 2px var(--warning-color), 0 4px 10px rgba(245, 158, 11, 0.3);
+            box-shadow: 0 0 0 2px var(--neon-yellow), 0 0 10px rgba(245, 166, 35, 0.5);
             cursor: move;
         }
 
         .gantt-bar-wrapper.is-editing .bar-planned {
-            background-color: #fef3c7;
-            border-color: var(--warning-color);
+            background-color: rgba(245, 166, 35, 0.25);
         }
 
         .resize-handle {
             position: absolute;
             top: 0;
-            width: 12px;
+            width: 10px;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.5);
+            background-color: rgba(255, 255, 255, 0.3);
             display: none;
             z-index: 10;
         }
-        .resize-handle-left { left: 0; cursor: ew-resize; border-top-left-radius: 4px; border-bottom-left-radius: 4px; }
-        .resize-handle-right { right: 0; cursor: ew-resize; border-top-right-radius: 4px; border-bottom-right-radius: 4px; }
+        .resize-handle-left { left: 0; cursor: ew-resize; border-top-left-radius: 2px; border-bottom-left-radius: 2px; }
+        .resize-handle-right { right: 0; cursor: ew-resize; border-top-right-radius: 2px; border-bottom-right-radius: 2px; }
+        
         .gantt-bar-wrapper.is-editing .resize-handle { display: block; }
 
         #save-bar {
@@ -428,15 +356,16 @@
             bottom: -100px;
             left: 0;
             width: 100%;
-            background: var(--warning-color);
-            color: #ffffff;
-            padding: 15px 30px;
+            background: var(--neon-yellow);
+            color: #000;
+            padding: 12px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 999999;
+            z-index: 9999;
             transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.5);
+            border-top: 2px solid #fff;
         }
         #save-bar.show { bottom: 0; }
         
@@ -445,13 +374,18 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
-            padding: 6px 8px;
-            background: #f8fafc;
+            padding: 4px 6px;
+            background: rgba(0, 255, 136, 0.05);
             border: 1px solid var(--border-dim);
             border-radius: 4px;
             cursor: pointer;
         }
-        .custom-toggle input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+        .custom-toggle input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            accent-color: var(--neon-green);
+            cursor: pointer;
+        }
 
         .btn-hide-row {
             background: transparent;
@@ -463,62 +397,131 @@
             align-items: center;
             justify-content: center;
             transition: color 0.2s;
-            font-size: 1.1rem;
         }
-        .btn-hide-row:hover { color: var(--danger-color); }
+        .btn-hide-row:hover {
+            color: var(--neon-red);
+        }
+
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3, 8, 6, 0.85); z-index: 2000;
+            justify-content: center; align-items: center; padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+        .manual-box {
+            width: 100%; max-width: 700px; max-height: 85vh;
+            background: var(--panel-bg); border: 2px solid var(--neon-green);
+            border-radius: 12px; padding: 25px; overflow-y: auto;
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.2); font-family: 'Segoe UI', Tahoma, sans-serif;
+            color: var(--text-main);
+        }
+        .manual-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px dashed var(--border-dim); padding-bottom: 10px; margin-bottom: 15px;
+        }
+        .manual-box h3 { color: var(--neon-green); margin: 0; font-weight: bold; }
+        .manual-box h5 { color: var(--neon-yellow); margin-top: 20px; margin-bottom: 10px; font-weight: bold; }
+        .manual-box p, .manual-box li { font-size: 0.9rem; line-height: 1.6; color: #d1e8df; }
+        .manual-box ul { padding-left: 20px; margin-bottom: 15px; }
+        .close-modal-btn {
+            background: transparent; border: 1px solid var(--neon-red); color: var(--neon-red);
+            padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 20px; width: 100%;
+        }
+        .close-modal-btn:hover { background: var(--neon-red); color: #fff; }
 
         @media print {
-            @page { size: A4 landscape; margin: 10mm; }
+            @page { 
+                size: A4 landscape; 
+                margin: 10mm; 
+            }
             
-            body { background: #ffffff !important; padding: 0 !important; }
-            .dashboard-container.no-print, .filter-header, .filter-grid, #save-bar, .btn-hide-row, .no-print { display: none !important; }
+            body, .dashboard-container { 
+                background: #ffffff !important; 
+                color: #000000 !important; 
+                border: none !important;
+            }
+            body::before { display: none !important; }
             
-            #ganttCardWrapper { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
-            .gantt-container { overflow: visible !important; max-height: none !important; border: none !important; }
-            .gantt-table { width: 100% !important; border-collapse: collapse !important; }
+            .filter-header, .filter-grid, #save-bar, .modal-overlay, .btn-hide-row { 
+                display: none !important; 
+            }
+            
+            .gantt-container {
+                overflow: visible !important;
+                max-height: none !important;
+                border: none !important;
+                background: #ffffff !important;
+            }
+            
+            .gantt-table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
             
             .gantt-table th, .gantt-table td, 
             .col-step, .col-code, .col-progress, .col-start, .col-end, .date-header {
                 position: static !important; 
                 background-color: #ffffff !important;
                 color: #000000 !important;
-                border: 1px solid #94a3b8 !important;
+                border: 1px solid #cccccc !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
 
-            .gantt-table thead th { background-color: #e2e8f0 !important; }
-            .date-input { border: none !important; }
+            .gantt-table thead th {
+                background-color: #f3f4f6 !important;
+                font-weight: bold !important;
+            }
+
+            .step-name, .step-order, .work-code-text { color: #000000 !important; }
+            .date-input { color: #000000 !important; border: none !important; }
             
-            .bar-planned { background-color: #cbd5e1 !important; border: 1px solid #64748b !important; }
-            .bar-actual { background-color: #2563eb !important; }
-            .bar-text { color: #000 !important; text-shadow: none !important; }
+            .bar-planned { background-color: #e5e7eb !important; border: 1px solid #9ca3af !important; }
+            .bar-actual { background-color: #00ff88 !important; }
+            .bar-text { color: #000000 !important; text-shadow: none !important; font-weight: bold !important; }
+            
+            div[style*="rgba(255, 51, 102, 0.15)"] { display: none !important; }
+            
+            span[style*="background: var(--neon-yellow)"] {
+                background: #ffffff !important;
+                color: #000000 !important;
+                border: 1px solid #000000 !important;
+                box-shadow: none !important;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="dashboard-container no-print">
+    <div class="dashboard-container">
         <div class="filter-header">
             <div class="filter-title">
-                <i class="fa-solid fa-chart-gantt fs-4"></i> JAGUAR GANTT CHART
+                <i class="fa-solid fa-bars-progress"></i> JAGUAR GANTT CHART
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
                 <div class="sync-status" id="syncIndicator" style="display:none;"></div>
                 
-                <a href="https://paiboon-creater.github.io/Data_Information_Jaguar_productions/" class="btn-action" style="text-decoration: none;">
-                    <i class="fa-solid fa-house"></i> Home
+                <button class="btn-action" onclick="openManual()" style="display: flex; align-items: center; gap: 4px; border-color: var(--neon-blue); color: var(--neon-blue);">
+                    <i class="fa-solid fa-book"></i> คู่มือ
+                </button>
+
+                <a href="https://paiboon-creater.github.io/Data_Information_Jaguar_productions/" class="btn-action" style="text-decoration: none; display: flex; align-items: center; gap: 4px;">
+                    <i class="fa-solid fa-house"></i> Home App
                 </a>
                 
                 <button class="btn-action" id="btn-toggle-date" onclick="toggleDateColumns()">
                     <i class="fa-solid fa-eye-slash"></i> ซ่อนวันที่
                 </button>
+                
+                <button class="btn-action" onclick="window.print()" style="border-color: #00ff88; color: #00ff88;">
+                    <i class="fa-solid fa-print"></i> พิมพ์แผนงาน
+                </button>
 
                 <button class="btn-action" onclick="forceSync()">
-                    <i class="fa-solid fa-rotate"></i> รีเฟรชข้อมูล
+                    <i class="fa-solid fa-rotate"></i> ดึงข้อมูล
                 </button>
                 <button class="btn-action btn-login" id="btn-login" onclick="toggleLogin()">
-                    <i class="fa-solid fa-lock"></i> Login แก้ไขแผน
+                    <i class="fa-solid fa-lock"></i> Login เพื่อแก้ไข
                 </button>
             </div>
         </div>
@@ -538,67 +541,61 @@
                 </select>
             </div>
             <div class="filter-group">
-                <label>หมายเลข PO (PO No):</label>
+                <label>PO No:</label>
                 <select id="filter_po" class="form-select-stock" onchange="applyFilters()">
                     <option value="">-- All PO --</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label>รหัสสินค้า (Product Code):</label>
+                <label>Product Code:</label>
                 <select id="filter_work" class="form-select-stock" onchange="applyFilters()">
                     <option value="">-- All Products --</option>
                 </select>
             </div>
-            <div class="filter-group" style="flex: 2; min-width: 250px;">
-                <label>ขั้นตอน (Step) - เลือกได้หลายรายการ:</label>
-                <select id="filter_step" class="form-select-stock select2-multiple" multiple="multiple">
-                    <!-- Options populated via JS -->
+            <div class="filter-group">
+                <label>Step:</label>
+                <select id="filter_step" class="form-select-stock" onchange="applyFilters()">
+                    <option value="">-- All Steps --</option>
                 </select>
             </div>
-            <div class="filter-group" style="display: flex; flex-direction: column; justify-content: flex-end; gap: 6px;">
-                <div style="display: flex; gap: 6px;">
-                    <div class="custom-toggle" style="flex: 1;">
-                        <input type="checkbox" id="chk-recent-only" checked onchange="applyFilters()">
-                        <label for="chk-recent-only" style="margin:0; font-size:0.75rem; cursor:pointer;">อัปเดต 5วัน</label>
+            <div class="filter-group" style="display: flex; flex-direction: column; justify-content: flex-end; gap: 4px;">
+                <div style="display: flex; gap: 4px;">
+                    <div class="custom-toggle" style="flex: 1; border-color: var(--neon-red);">
+                        <input type="checkbox" id="chk-recent-only" checked onchange="applyFilters()" style="accent-color: var(--neon-red);">
+                        <label for="chk-recent-only" style="margin:0; font-size:0.7rem; color:var(--neon-red); cursor:pointer;">อัปเดตล่าสุด 5วัน</label>
                     </div>
                     <div class="custom-toggle" style="flex: 1;">
                         <input type="checkbox" id="chk-show-daily" onchange="applyFilters()">
-                        <label for="chk-show-daily" style="margin:0; font-size:0.75rem; cursor:pointer;">ยอดรายวัน</label>
+                        <label for="chk-show-daily" style="margin:0; font-size:0.7rem; color:var(--neon-green); cursor:pointer;">เลขรายวัน</label>
+                    </div>
+                    <div class="custom-toggle" style="flex: 1; border-color: var(--neon-yellow);">
+                        <input type="checkbox" id="chk-show-hidden" onchange="applyFilters()" style="accent-color: var(--neon-yellow);">
+                        <label for="chk-show-hidden" style="margin:0; font-size:0.7rem; color:var(--neon-yellow); cursor:pointer;">ดูงานที่ซ่อน</label>
                     </div>
                 </div>
-                <button class="btn-action w-100 justify-content-center" onclick="clearFilters()" style="height: 34px;">เคลียร์ตัวกรอง</button>
+                <button class="btn-action" onclick="clearFilters()" style="width: 100%; height: 32px;">RESET</button>
             </div>
         </div>
     </div>
 
-    <!-- แผงแสดงตารางแกนต์ชาร์ต -->
-    <div class="dashboard-container" id="ganttCardWrapper" style="padding: 0;">
-        <div class="gantt-header" style="padding: 15px 15px 0 15px;">
-            <div class="gantt-title" id="ganttChartTitle"><i class="fa-solid fa-list text-primary me-2"></i> ภาพรวมแผนงาน</div>
-            <div style="display: flex; align-items: center; gap: 20px;">
-                <div class="gantt-legend no-print">
-                    <div class="legend-item"><div class="box-planned"></div> แผนงาน (Plan)</div>
-                    <div class="legend-item"><div class="box-actual"></div> ผลิตจริง (Actual)</div>
-                    <div class="legend-item"><div class="box-actual" style="background:#ff3366;"></div> ไฮไลต์ (คลิกขวาเปลี่ยนสี)</div>
-                </div>
-                <div style="display: flex; gap: 8px;" class="no-print">
-                    <button class="btn-action btn-primary-action" onclick="toggleFullscreen()" id="btn-fullscreen" title="ขยายเต็มจอเพื่อดูหรือสั่งพิมพ์">
-                        <i class="fa-solid fa-expand"></i> ดูเต็มจอ
-                    </button>
-                    <button class="btn-action btn-print" onclick="window.print()" title="พิมพ์แกนต์ชาร์ตหน้าจอปัจจุบัน">
-                        <i class="fa-solid fa-print"></i> พิมพ์เอกสาร
-                    </button>
-                </div>
+    <div class="dashboard-container" style="padding: 0; border: none; background: transparent;">
+        <div class="gantt-header" style="padding: 0 5px;">
+            <div class="gantt-title" id="ganttChartTitle">> ภาพรวมแผนงาน</div>
+            <div class="gantt-legend">
+                <div class="legend-item"><div class="box-planned"></div> แผนงาน (Plan)</div>
+                <div class="legend-item"><div class="box-actual"></div> ผลิตจริง (Actual)</div>
+                <div class="legend-item"><div class="box-custom"></div> สีจุดสังเกตส่งของ (คลิกขวาเปลี่ยนสี)</div>
             </div>
         </div>
         
-        <div class="gantt-container" id="ganttScrollArea" style="margin: 15px; width: auto; max-height: 65vh;">
+        <div class="gantt-container" id="ganttScrollArea">
             <table class="gantt-table" id="ganttTable">
-                <thead id="ganttHead"></thead>
+                <thead id="ganttHead">
+                    </thead>
                 <tbody id="ganttBody">
                     <tr>
-                        <td colspan="6" class="text-center py-5 text-muted fs-5">
-                            <i class="fa-solid fa-spinner fa-spin me-2"></i> กำลังโหลดข้อมูล...
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            <i class="fa-solid fa-spinner fa-spin me-2"></i> โหลดข้อมูล...
                         </td>
                     </tr>
                 </tbody>
@@ -611,14 +608,61 @@
             <i class="fa-solid fa-triangle-exclamation fs-3"></i>
             <div>
                 <h6 class="mb-0 fw-bold">คุณมีการแก้ไขแผนงาน (Unsaved Changes)</h6>
-                <small class="opacity-100">ลากแท่งกราฟ หรือเปลี่ยนวันที่ในตารางเพื่อแก้ไข</small>
+                <small class="opacity-75">ลากแท่งสีส้ม, ดึงขอบ หรือเลือกปฏิทินเพื่อเปลี่ยนวันที่</small>
             </div>
         </div>
         <div class="d-flex gap-2">
-            <button onclick="cancelEdits()" class="btn btn-outline-light fw-bold">ยกเลิก</button>
-            <button onclick="saveEdits()" class="btn btn-light fw-bold text-dark" id="btn-save-edits">
-                <i class="fa-solid fa-floppy-disk me-1"></i> บันทึกแผนงาน
+            <button onclick="cancelEdits()" class="btn btn-dark btn-sm fw-bold">ยกเลิก</button>
+            <button onclick="saveEdits()" class="btn btn-light btn-sm fw-bold text-dark" id="btn-save-edits">
+                <i class="fa-solid fa-floppy-disk me-1"></i> บันทึกข้อมูล
             </button>
+        </div>
+    </div>
+
+    <div id="manualModal" class="modal-overlay">
+        <div class="manual-box">
+            <div class="manual-header">
+                <h3><i class="fa-solid fa-book-open"></i> คู่มือการใช้งาน GANTT CHART</h3>
+                <button class="btn-action" onclick="printManual()" style="border-color: var(--neon-green); color: var(--neon-green); padding: 6px 12px;">
+                    <i class="fa-solid fa-print"></i> พิมพ์คู่มือ
+                </button>
+            </div>
+            
+            <div id="manualContent">
+                <h5>1. การเข้าถึงและการจำกัดสิทธิ์ (Login Mode)</h5>
+                <ul>
+                    <li><b>Read-Only Mode:</b> เมื่อเปิดหน้าระบบครั้งแรก คุณจะสามารถดูข้อมูล เลื่อนแผนภูมิ และกรองข้อมูลได้อย่างเดียว ไม่สามารถลากย้ายกราฟได้เพื่อป้องกันข้อผิดพลาด</li>
+                    <li><b>Edit Mode (โหมดแก้ไข):</b> กดปุ่ม <b><i class="fa-solid fa-lock"></i> Login เพื่อแก้ไข</b> ด้านบนขวาและใส่รหัสผ่านที่ถูกต้อง คุณจึงจะสามารถแก้ไขระยะเวลาของแผนงานได้</li>
+                </ul>
+
+                <h5>2. การปรับแก้แผนงาน (ลากและวาง / Drag & Drop) *ต้อง Login ก่อน</h5>
+                <ul>
+                    <li><b>เริ่มการแก้ไข:</b> ดับเบิ้ลคลิก (Double Click) ที่แท่งกราฟที่ต้องการ แท่งนั้นจะเรืองแสงเป็นขอบสีส้ม</li>
+                    <li><b>ย้ายทั้งช่วง:</b> คลิกค้างตรงกลางแท่งสีส้มแล้วลากซ้าย-ขวาเพื่อเลื่อนวันที่เริ่มและวันจบพร้อมกัน</li>
+                    <li><b>ยืด/หดระยะเวลา:</b> นำเมาส์ไปชี้ที่ขอบซ้ายหรือขวาของแท่งสีส้ม (จะมีแถบสีขาวเล็กๆ ปรากฏ) คลิกค้างแล้วลากเพื่อเพิ่มหรือลดระยะเวลา</li>
+                    <li><b>แก้ไขด้วยปฏิทิน:</b> สามารถคลิกที่ช่องวันที่ในตาราง (คอลัมน์เริ่ม/เสร็จ) เพื่อเลือกวันที่จากปฏิทินได้โดยตรง</li>
+                    <li><b>การบันทึก:</b> เมื่อแก้ไขเสร็จแล้ว จะมีแถบสีเหลืองปรากฏด้านล่างจอ ให้กด <b>บันทึกข้อมูล</b> เพื่ออัปเดตขึ้นระบบ</li>
+                </ul>
+
+                <h5>3. การค้นหาและกรองข้อมูล (Filters)</h5>
+                <ul>
+                    <li>ใช้ช่องตัวกรองด้านบนเพื่อเลือกช่วงวันที่, Order, PO, รหัสสินค้า, หรือขั้นตอนที่ต้องการดูเฉพาะเจาะจง</li>
+                    <li>กด <b>RESET</b> หากต้องการล้างตัวกรองทั้งหมดให้กลับเป็นค่าเริ่มต้น</li>
+                </ul>
+
+                <h5>4. ฟังก์ชันการแสดงผลและการจัดเรียง</h5>
+                <ul>
+                    <li><b>ตำแหน่งปัจจุบัน (วันนี้):</b> เมื่อเปิดฟอร์ม ระบบจะเลื่อนตารางไปยังวันที่ปัจจุบัน (ไฮไลต์คอลัมน์สีแดง) อัตโนมัติ โดยเว้นพื้นที่ด้านขวาไว้ 15 ช่อง เพื่อให้สามารถดูแผนงานที่กำลังจะมาถึงได้ง่าย</li>
+                    <li><b>การจัดเรียงใบสั่ง:</b> ระบบจะจัดกลุ่มงานตาม <b>เลขที่ใบสั่ง (Order No)</b> ให้อยู่ติดกันเสมอ และเรียงตามวันที่เริ่มก่อนขึ้นก่อน</li>
+                    <li><b>อัปเดตล่าสุด 5วัน:</b> ตัวกรองนี้จะถูกเปิดไว้โดยอัตโนมัติ เพื่อดึงมาเฉพาะงานที่มีการผลิตเคลื่อนไหวในช่วง 5 วันที่ผ่านมา หากต้องการดูงานทั้งหมดให้ติ๊กเครื่องหมายถูกออก</li>
+                    <li><b>เลขรายวัน:</b> ปิดไว้เป็นค่าเริ่มต้น คุณสามารถติ๊กเพื่อเปิด/ปิด การแสดงตัวเลขยอดการผลิตของแต่ละวัน ซึ่งจะโชว์ทับอยู่บนตาราง</li>
+                    <li><b>ซ่อนวันที่:</b> กดปุ่ม "ซ่อนวันที่" ด้านบนเพื่อพับคอลัมน์วันที่เริ่มและเสร็จเก็บ ทำให้มีพื้นที่ดูแผนภูมิกราฟกว้างขึ้น</li>
+                    <li><b>ซ่อน/แสดงแถว (ไอคอนดวงตา):</b> หากมีงานใดที่ไม่ต้องการให้เกะกะบนหน้าจอ สามารถกดปุ่มรูปตาหน้าชื่อขั้นตอนเพื่อซ่อนแถวนั้นได้ หากต้องการกู้คืนให้ติ๊กถูกที่ <b>ดูงานที่ซ่อน</b> ด้านบน แถวจะโชว์แบบจางๆ ให้กดรูปตาเพื่อเลิกซ่อน</li>
+                    <li><b>จุดสังเกตสี (ไฮไลต์กราฟ):</b> เมื่อ Login แล้ว สามารถ <b>คลิกขวา</b> ที่แท่งกราฟเพื่อเปลี่ยนสีไฮไลต์ได้ (เช่น กำหนดให้เป็นสีชมพูเพื่อเตือนว่าใกล้วันส่งของ) หากคลิกขวาซ้ำสีจะเปลี่ยนไปเรื่อยๆ จนกลับมาเป็นแบบเดิม</li>
+                </ul>
+            </div>
+
+            <button type="button" class="close-modal-btn" onclick="closeManual()">ปิดหน้าต่างคู่มือ</button>
         </div>
     </div>
 
@@ -638,8 +682,13 @@
     );
 
     const validUsers = {
-        "admin": "112233", "user1": "@oh111", "user2": "@cat22",
-        "user3": "@ann33", "user4": "@jai44", "user5": "@yuy55", "user6": "@boon6"
+        "admin": "112233",
+        "user1": "@oh111",
+        "user2": "@cat22",
+        "user3": "@ann33",
+        "user4": "@jai44",
+        "user5": "@yuy55",
+        "user6": "@boon6"
     };
 
     const STEP_ABBR_MAP = {
@@ -661,12 +710,16 @@
 
     function addWorkingDays(startDate, daysToAdd) {
         let date = new Date(startDate);
-        if (date.getDay() === 0) date.setDate(date.getDate() + 1);
+        if (date.getDay() === 0) {
+            date.setDate(date.getDate() + 1);
+        }
         
         let added = 0;
         while (added < daysToAdd) {
             date.setDate(date.getDate() + 1);
-            if (date.getDay() !== 0) added++;
+            if (date.getDay() !== 0) { 
+                added++;
+            }
         }
         return date;
     }
@@ -674,7 +727,7 @@
     let rawData = { orders: [], workItems: [], steps: [], targets: [], daily: [], orderSteps: [] };
     let maps = { workIdToCode: {}, stepIdToName: {}, targetIdToStepId: {}, workIdToStepIds: {}, stepLevel: {}, stepTargetLimit: {} };
     
-    const CELL_WIDTH = 45; 
+    const CELL_WIDTH = 28; 
     let localEdits = {}; 
     let customColors = JSON.parse(localStorage.getItem('jaguar_custom_colors') || '{}'); 
     let editingTaskId = null; 
@@ -693,37 +746,44 @@
     }
 
     window.onload = async function() {
-        // Initialize Select2 สำหรับคอลัมน์ Step
-        $('#filter_step').select2({
-            placeholder: "-- เลือกขั้นตอน --",
-            allowClear: true,
-            width: '100%'
-        }).on('change', function(e) {
-            if (e.originalEvent) applyFilters(); 
-        });
-
         await fetchAllData();
         setupDragAndDrop();
         setupRealtime(); 
         setupScrollTracking();
     };
 
-    function toggleFullscreen() {
-        const wrapper = document.getElementById('ganttCardWrapper');
-        const btn = document.getElementById('btn-fullscreen');
-        wrapper.classList.toggle('fullscreen');
-        
-        if (wrapper.classList.contains('fullscreen')) {
-            btn.innerHTML = '<i class="fa-solid fa-compress"></i> ย่อจอลง';
-            btn.classList.remove('btn-primary-action');
-            btn.style.background = '#475569';
-            btn.style.color = '#fff';
-        } else {
-            btn.innerHTML = '<i class="fa-solid fa-expand"></i> ดูเต็มจอ';
-            btn.classList.add('btn-primary-action');
-            btn.style.background = '';
-            btn.style.color = '';
-        }
+    function openManual() { document.getElementById('manualModal').style.display = 'flex'; }
+    function closeManual() { document.getElementById('manualModal').style.display = 'none'; }
+
+    function printManual() {
+        const manualContent = document.getElementById('manualContent').innerHTML;
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>คู่มือการใช้งาน JAGUAR GANTT CHART</title>
+                <style>
+                    @page { size: A4 portrait; margin: 20mm; }
+                    body { font-family: 'Segoe UI', Tahoma, sans-serif; color: #000; line-height: 1.6; }
+                    h3 { border-bottom: 2px solid #000; padding-bottom: 10px; text-align: center; font-size: 24px; }
+                    h5 { margin-top: 25px; font-size: 18px; color: #333; }
+                    ul { padding-left: 20px; }
+                    li { margin-bottom: 10px; font-size: 15px; }
+                    b { color: #000; }
+                </style>
+            </head>
+            <body>
+                <h3>คู่มือการใช้งาน JAGUAR GANTT CHART</h3>
+                ${manualContent.replace(/<i class=".*?"><\/i>/g, '')}
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 300);
     }
 
     function setupScrollTracking() {
@@ -734,25 +794,35 @@
                 localStorage.setItem('jaguar_scroll_top', e.target.scrollTop);
             }
         });
+
+        window.addEventListener('scroll', () => {
+            localStorage.setItem('jaguar_window_scroll_top', window.scrollY);
+        });
     }
 
     function restoreScrollPosition() {
         const scrollArea = document.getElementById('ganttScrollArea');
         const savedLeft = localStorage.getItem('jaguar_scroll_left');
         const savedTop = localStorage.getItem('jaguar_scroll_top');
+        const savedWindowTop = localStorage.getItem('jaguar_window_scroll_top');
 
         if (savedLeft !== null) scrollArea.scrollLeft = parseInt(savedLeft, 10);
         if (savedTop !== null) scrollArea.scrollTop = parseInt(savedTop, 10);
+        if (savedWindowTop !== null) window.scrollTo(0, parseInt(savedWindowTop, 10));
     }
 
     function setupRealtime() {
         supabaseClient
             .channel('db-changes')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'order_steps' }, payload => {
-                if (Object.keys(localEdits).length === 0 && !editingTaskId) fetchAllData(true);
+                if (Object.keys(localEdits).length === 0 && !editingTaskId) {
+                    fetchAllData(true);
+                }
             })
             .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_production' }, payload => {
-                if (Object.keys(localEdits).length === 0 && !editingTaskId) fetchAllData(true);
+                if (Object.keys(localEdits).length === 0 && !editingTaskId) {
+                    fetchAllData(true);
+                }
             })
             .subscribe();
     }
@@ -762,7 +832,7 @@
         if (isLoggedIn) {
             isLoggedIn = false;
             currentUser = "";
-            btn.innerHTML = '<i class="fa-solid fa-lock"></i> Login แก้ไขแผน';
+            btn.innerHTML = '<i class="fa-solid fa-lock"></i> Login เพื่อแก้ไข';
             btn.classList.remove('btn-logout');
             btn.classList.add('btn-login');
             cancelEdits(); 
@@ -779,7 +849,7 @@
                 btn.innerHTML = `<i class="fa-solid fa-unlock"></i> Logout (${currentUser})`;
                 btn.classList.remove('btn-login');
                 btn.classList.add('btn-logout');
-                alert(`เข้าสู่ระบบสำเร็จ! คุณสามารถลากกราฟแก้ไขวันที่ได้แล้วครับ`);
+                alert(`เข้าสู่ระบบสำเร็จ ยินดีต้อนรับคุณ ${currentUser}\nคุณสามารถลากกราฟ, เปลี่ยนวันที่, หรือเปลี่ยนสีแท่งได้แล้วครับ`);
                 applyFilters(); 
             } else {
                 alert("Username หรือ Password ไม่ถูกต้อง!");
@@ -800,9 +870,13 @@
         if (isDateHidden) {
             table.classList.add('table-hide-dates');
             btn.innerHTML = '<i class="fa-solid fa-calendar-days"></i> แสดงวันที่';
+            btn.style.color = 'var(--neon-yellow)';
+            btn.style.borderColor = 'var(--neon-yellow)';
         } else {
             table.classList.remove('table-hide-dates');
             btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i> ซ่อนวันที่';
+            btn.style.color = '#ced4da';
+            btn.style.borderColor = '#495057';
         }
     }
 
@@ -810,9 +884,15 @@
         const btn = document.getElementById('syncIndicator');
         btn.style.display = 'flex';
         btn.innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin"></i> SYNC';
+        btn.style.color = "var(--neon-yellow)";
+        btn.style.borderColor = "var(--neon-yellow)";
+        
         await fetchAllData();
+        
         setTimeout(() => {
-            btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> SYNCED';
+            btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> SYNC';
+            btn.style.color = "var(--neon-green)";
+            btn.style.borderColor = "var(--neon-green)";
             setTimeout(() => { btn.style.display = 'none'; }, 2000);
         }, 500);
     }
@@ -828,7 +908,10 @@
                 `${SUPABASE_URL}/order_steps?select=*`
             ];
 
-            const responses = await Promise.all(endpoints.map(url => fetch(url, { headers, cache: 'no-store' })));
+            const responses = await Promise.all(endpoints.map(url => fetch(url, { 
+                headers: headers,
+                cache: 'no-store' 
+            })));
             const data = await Promise.all(responses.map(res => res.json()));
 
             rawData = { orders: data[0], workItems: data[1], steps: data[2], targets: data[3], daily: data[4], orderSteps: data[5] || [] };
@@ -856,8 +939,10 @@
         maps.stepTargetLimit = {}; 
         rawData.targets.forEach(t => {
             maps.targetIdToStepId[t.id_target] = t.id_step;
+            
             if(!maps.workIdToStepIds[t.id_work]) maps.workIdToStepIds[t.id_work] = new Set();
             maps.workIdToStepIds[t.id_work].add(t.id_step);
+            
             maps.stepTargetLimit[`${t.id_work}_${t.id_step}`] = t.target_amount || 0;
         });
     }
@@ -867,8 +952,10 @@
         if (stepIds.length === 0) return {};
         
         stepIds.sort((a, b) => (maps.stepLevel[a] - maps.stepLevel[b]));
+        
         let calculated = {};
         let orderStart = new Date(order.start_date || new Date());
+        
         let currentStepStart = addWorkingDays(orderStart, 5);
         
         stepIds.forEach(stepId => {
@@ -879,30 +966,35 @@
             let daysNeeded = (dailyCapacity > 0 && qty > 0) ? Math.ceil(qty / dailyCapacity) : 1;
             let stepEnd = addWorkingDays(currentStepStart, daysNeeded - 1);
             
-            calculated[stepId] = { start: formatDateToLocal(currentStepStart), end: formatDateToLocal(stepEnd) };
+            calculated[stepId] = {
+                start: formatDateToLocal(currentStepStart),
+                end: formatDateToLocal(stepEnd)
+            };
+            
             currentStepStart = addWorkingDays(currentStepStart, 1);
         });
+        
         return calculated;
     }
 
-    function populateDropdowns(fOrder = '', fPo = '', fWork = '', fStepVals = []) {
-        const isMatch = (item, orderVal, poVal, workVal, stepVals) => {
+    function populateDropdowns(fOrder = '', fPo = '', fWork = '', fStep = '') {
+        const isMatch = (item, orderVal, poVal, workVal, stepVal) => {
             let wCode = maps.workIdToCode[item.id_work] ? String(maps.workIdToCode[item.id_work]).trim() : String(item.id_work);
             let matchOrder = !orderVal || (item.order_no && String(item.order_no).trim() === orderVal);
             let matchPo = !poVal || (item.po_no && String(item.po_no).trim() === poVal);
             let matchWork = !workVal || wCode === workVal;
             let matchStep = true;
-            if(stepVals && stepVals.length > 0) {
+            if(stepVal) {
                 let sIds = maps.workIdToStepIds[item.id_work];
-                matchStep = sIds && stepVals.some(v => sIds.has(parseInt(v)));
+                matchStep = sIds && sIds.has(parseInt(stepVal));
             }
             return matchOrder && matchPo && matchWork && matchStep;
         };
 
-        const validForOrder = rawData.orders.filter(i => isMatch(i, '', fPo, fWork, fStepVals));
-        const validForPo = rawData.orders.filter(i => isMatch(i, fOrder, '', fWork, fStepVals));
-        const validForWork = rawData.orders.filter(i => isMatch(i, fOrder, fPo, '', fStepVals));
-        const validForStep = rawData.orders.filter(i => isMatch(i, fOrder, fPo, fWork, [])); 
+        const validForOrder = rawData.orders.filter(i => isMatch(i, '', fPo, fWork, fStep));
+        const validForPo = rawData.orders.filter(i => isMatch(i, fOrder, '', fWork, fStep));
+        const validForWork = rawData.orders.filter(i => isMatch(i, fOrder, fPo, '', fStep));
+        const validForStep = rawData.orders.filter(i => isMatch(i, fOrder, fPo, fWork, ''));
 
         const orders = [...new Set(validForOrder.map(i => i.order_no ? String(i.order_no).trim() : null).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'th', {numeric:true}));
         const pos = [...new Set(validForPo.map(i => i.po_no ? String(i.po_no).trim() : null).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'th', {numeric:true}));
@@ -910,99 +1002,97 @@
 
         let validStepIds = new Set();
         validForStep.forEach(o => { if(maps.workIdToStepIds[o.id_work]) maps.workIdToStepIds[o.id_work].forEach(id => validStepIds.add(id)); });
-        const steps = [...validStepIds].map(id => ({ id: id, name: getStepAbbr(maps.stepIdToName[id]) })).filter(s => s.name && !s.name.includes('แก้')).sort((a,b) => a.name.localeCompare(b.name, 'th'));
+        const steps = [...validStepIds].map(id => ({ id: id, name: getStepAbbr(maps.stepIdToName[id]) })).filter(s => s.name && !s.name.includes('งานแก้')).sort((a,b) => a.name.localeCompare(b.name, 'th'));
 
         const upd = (id, arr, def, val) => {
             let el = document.getElementById(id);
             if(document.activeElement === el) return; 
-            el.innerHTML = `<option value="">${def}</option>` + arr.map(x => `<option value="${x}" ${String(x)===val?'selected':''}>${x}</option>`).join('');
+            el.innerHTML = `<option value="">${def}</option>` + arr.map(x => {
+                let v = typeof x === 'object' ? x.id : x;
+                let n = typeof x === 'object' ? x.name : x;
+                return `<option value="${v}" ${String(v)===val?'selected':''}>${n}</option>`;
+            }).join('');
         };
 
         upd('filter_order', orders, '-- All Orders --', fOrder);
         upd('filter_po', pos, '-- All PO --', fPo);
         upd('filter_work', works, '-- All Products --', fWork);
-        
-        // จัดการ Select2 Step Multi-Select
-        let elStep = $('#filter_step');
-        if(!elStep.is(':focus')) {
-            let currentVals = elStep.val() || [];
-            elStep.empty();
-            steps.forEach(x => {
-                let sel = currentVals.includes(String(x.id)) ? true : false;
-                let opt = new Option(x.name, x.id, sel, sel);
-                elStep.append(opt);
-            });
-        }
+        upd('filter_step', steps, '-- All Steps --', fStep);
+    }
+
+    function hideRow(taskId) {
+        hiddenTaskIds.add(taskId);
+        saveHiddenTasks();
+        applyFilters(); 
+    }
+
+    function unhideRow(taskId) {
+        hiddenTaskIds.delete(taskId);
+        saveHiddenTasks();
+        applyFilters();
     }
 
     function clearFilters() {
-        ['filter_date_from', 'filter_date_to', 'filter_order','filter_po','filter_work'].forEach(id => document.getElementById(id).value = '');
-        $('#filter_step').val(null).trigger('change');
+        ['filter_date_from', 'filter_date_to', 'filter_order','filter_po','filter_work','filter_step'].forEach(id => document.getElementById(id).value = '');
         document.getElementById('chk-recent-only').checked = false; 
         applyFilters();
     }
 
     function handleDateChange(taskId, type, value) {
-        if (!isLoggedIn || !value) return; 
+        if (!isLoggedIn) return; 
+        if (!value) return; 
+        
         let startInput = document.getElementById(`start_${taskId}`).value;
         let endInput = document.getElementById(`end_${taskId}`).value;
         
-        if (!localEdits[taskId]) localEdits[taskId] = { startDate: startInput, endDate: endInput };
+        if (!localEdits[taskId]) {
+            localEdits[taskId] = { startDate: startInput, endDate: endInput };
+        }
 
         if (type === 'start') {
             localEdits[taskId].startDate = value;
-            if (new Date(localEdits[taskId].endDate) < new Date(value)) localEdits[taskId].endDate = value; 
+            if (new Date(localEdits[taskId].endDate) < new Date(value)) {
+                localEdits[taskId].endDate = value; 
+            }
         } else {
             localEdits[taskId].endDate = value;
-            if (new Date(localEdits[taskId].startDate) > new Date(value)) localEdits[taskId].startDate = value; 
+            if (new Date(localEdits[taskId].startDate) > new Date(value)) {
+                localEdits[taskId].startDate = value; 
+            }
         }
-        startEditing(taskId); 
-    }
-
-    function changeCustomColor(e, taskId) {
-        e.preventDefault(); // ปิดเมนูคลิกขวาปกติของเบราว์เซอร์
         
-        let colors = ['', '#ff3366', '#f59e0b', '#10b981', '#0ea5e9', '#d946ef', '#1e293b'];
-        let currentColor = customColors[taskId] || '';
-        let nextIndex = (colors.indexOf(currentColor) + 1) % colors.length;
-        let newColor = colors[nextIndex];
-
-        if (newColor === '') delete customColors[taskId];
-        else customColors[taskId] = newColor;
-
-        localStorage.setItem('jaguar_custom_colors', JSON.stringify(customColors));
-        applyFilters(); 
+        startEditing(taskId); 
     }
 
     function applyFilters() {
         const fOrder = document.getElementById('filter_order').value;
         const fPo = document.getElementById('filter_po').value;
         const fWork = document.getElementById('filter_work').value;
-        const fStepVals = $('#filter_step').val() || [];
+        const fStep = document.getElementById('filter_step').value;
         
-        populateDropdowns(fOrder, fPo, fWork, fStepVals);
-        let titleSuffix = fPo ? `PO: ${fPo}` : (fWork ? `สินค้า: ${fWork}` : (fOrder ? `ใบสั่ง: ${fOrder}` : 'ทั้งหมด'));
-        document.getElementById('ganttChartTitle').innerHTML = `<i class="fa-solid fa-list text-primary me-2"></i> ภาพรวมแผนงาน > ${titleSuffix}`;
+        populateDropdowns(fOrder, fPo, fWork, fStep);
+        document.getElementById('ganttChartTitle').innerText = fWork ? `> แผนงานชิ้นงาน: ${fWork}` : (fOrder ? `> แผนงานใบสั่ง: ${fOrder}` : '> ภาพรวมแผนงานทั้งหมด');
 
         let filteredOrders = rawData.orders.filter(o => {
             let wCode = maps.workIdToCode[o.id_work] ? String(maps.workIdToCode[o.id_work]).trim() : String(o.id_work);
             let matchOrder = !fOrder || (o.order_no && String(o.order_no).trim() === fOrder);
             let matchPo = !fPo || (o.po_no && String(o.po_no).trim() === fPo);
             let matchWork = !fWork || wCode === fWork;
-            let matchStep = fStepVals.length === 0 || (maps.workIdToStepIds[o.id_work] && fStepVals.some(v => maps.workIdToStepIds[o.id_work].has(parseInt(v))));
+            let matchStep = !fStep || (maps.workIdToStepIds[o.id_work] && maps.workIdToStepIds[o.id_work].has(parseInt(fStep)));
             return matchOrder && matchPo && matchWork && matchStep;
         });
 
-        renderGanttChart(filteredOrders, fStepVals);
+        renderGanttChart(filteredOrders, fStep);
     }
 
-    function renderGanttChart(orders, filteredStepIds) {
+    function renderGanttChart(orders, filteredStepId) {
         const thead = document.getElementById('ganttHead');
         const tbody = document.getElementById('ganttBody');
         
         const fDateFrom = document.getElementById('filter_date_from').value;
         const fDateTo = document.getElementById('filter_date_to').value;
         const showDailyNums = document.getElementById('chk-show-daily').checked;
+        const showHiddenTasks = document.getElementById('chk-show-hidden').checked;
         const showRecentOnly = document.getElementById('chk-recent-only').checked;
 
         let todayStrLocal = formatDateToLocal(new Date());
@@ -1012,13 +1102,13 @@
 
         if(orders.length === 0) {
             thead.innerHTML = `<tr>
-                <th class="col-step">ขั้นตอน [Order/PO]</th>
+                <th class="col-step">ขั้นตอน [Order]</th>
                 <th class="col-code">รหัสชิ้นงาน</th>
                 <th class="col-progress">ผลิตได้ / ยอดสั่ง / %</th>
                 <th class="col-start">เริ่ม</th>
                 <th class="col-end">เสร็จ</th>
             </tr>`;
-            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-muted fs-5">ไม่พบข้อมูลตามเงื่อนไข</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">ไม่พบข้อมูลตามเงื่อนไข</td></tr>`;
             applyDateColumnVisibility();
             return;
         }
@@ -1030,27 +1120,32 @@
         orders.forEach(order => {
             let orderQty = order.quantity || 0;
             let stepIds = maps.workIdToStepIds[order.id_work]; 
+            
             let autoCalculatedDates = autoCalculateDatesForOrder(order);
             
             if (stepIds) {
                 stepIds.forEach(stepId => {
-                    // กรอง Step จาก Multi-select
-                    if (filteredStepIds && filteredStepIds.length > 0 && !filteredStepIds.includes(String(stepId))) return;
+                    if (filteredStepId && String(stepId) !== filteredStepId) return;
                     
                     let stepNameFull = maps.stepIdToName[stepId] || '';
-                    if (stepNameFull.includes('แก้')) return;
+                    // ⚡️ ไม่แสดงขั้นตอนที่เป็น "งานแก้"
+                    if (stepNameFull.includes('งานแก้')) return;
                     
                     let taskId = `${order.id_order}_${stepId}`; 
                     let isTaskHidden = hiddenTaskIds.has(taskId);
-                    if (isTaskHidden) return; 
+                    
+                    if (isTaskHidden && !showHiddenTasks) return;
 
                     let oStep = rawData.orderSteps.find(os => os.id_order === order.id_order && os.id_step === stepId);
+                    
                     let baseStart = (oStep && oStep.start_date) ? oStep.start_date : (autoCalculatedDates[stepId] ? autoCalculatedDates[stepId].start : order.start_date);
                     let baseEnd = (oStep && oStep.end_date) ? oStep.end_date : (autoCalculatedDates[stepId] ? autoCalculatedDates[stepId].end : order.end_date);
+
                     let startDateStr = (localEdits[taskId] && localEdits[taskId].startDate) ? localEdits[taskId].startDate : baseStart;
                     let endDateStr = (localEdits[taskId] && localEdits[taskId].endDate) ? localEdits[taskId].endDate : baseEnd;
 
                     if(!startDateStr || !endDateStr) return;
+
                     if (fDateFrom && endDateStr < fDateFrom) return; 
                     if (fDateTo && startDateStr > fDateTo) return;
 
@@ -1062,15 +1157,21 @@
                         if (dp.id_order === order.id_order && maps.targetIdToStepId[dp.id_target] === stepId) {
                             let amt = dp.produced_amount || 0;
                             actualTotal += amt;
+                            
                             if (dp.record_date) {
                                 let dStr = String(dp.record_date).substring(0, 10);
                                 dailyLogs[dStr] = (dailyLogs[dStr] || 0) + amt;
-                                if (dStr >= fiveDaysAgoStr && dStr <= todayStrLocal && amt > 0) hasRecentProduction = true;
+                                
+                                if (dStr >= fiveDaysAgoStr && dStr <= todayStrLocal && amt > 0) {
+                                    hasRecentProduction = true;
+                                }
                             }
                         }
                     });
 
-                    if (showRecentOnly && !hasRecentProduction) return;
+                    if (showRecentOnly && !hasRecentProduction) {
+                        return;
+                    }
 
                     let sDate = new Date(startDateStr);
                     let eDate = new Date(endDateStr);
@@ -1079,13 +1180,15 @@
                     if (sDate < minDate) minDate = new Date(sDate);
                     if (eDate > maxDate) maxDate = new Date(eDate);
 
+                    let wCode = maps.workIdToCode[order.id_work] ? String(maps.workIdToCode[order.id_work]).trim() : (order.id_work || '-');
+
                     rowsData.push({
                         taskId: taskId,
+                        isHidden: isTaskHidden,
                         order_id: order.id_order,
                         step_id: stepId,
-                        order_no: order.order_no || '-',
-                        po_no: order.po_no || '-',
-                        work_code: maps.workIdToCode[order.id_work] ? String(maps.workIdToCode[order.id_work]).trim() : (order.id_work || '-'),
+                        order_no: order.order_no || 'N/A',
+                        work_code: wCode,
                         step_name: getStepAbbr(stepNameFull) || 'Unknown',
                         target: orderQty,
                         actual: actualTotal,
@@ -1101,30 +1204,27 @@
             }
         });
 
-        // จัดเรียงลำดับใหม่: เริ่มก่อนอยู่บน -> เลข Order -> ลำดับขั้นตอน
+        // ⚡️ จัดเรียงลำดับ: จัดกลุ่มตาม Order No ก่อน แล้วเรียงตาม "วันที่เริ่ม" (เก่าไปใหม่) ให้อยู่แถวบนๆ
         rowsData.sort((a, b) => {
-            // 1. เรียงตามวันที่เริ่ม (startDate)
-            let timeDiff = a.startDate.getTime() - b.startDate.getTime();
-            if (timeDiff !== 0) return timeDiff;
-            
-            // 2. ถ้าวันที่เริ่มเท่ากัน ให้เรียงตาม Order No
             let compOrder = String(a.order_no).localeCompare(String(b.order_no), 'th', { numeric: true });
             if (compOrder !== 0) return compOrder;
             
-            // 3. ถ้า Order No เหมือนกัน ให้เรียงตาม Step Level
-            let levelA = maps.stepLevel[a.step_id] || 99;
-            let levelB = maps.stepLevel[b.step_id] || 99;
-            return levelA - levelB;
+            if (a.startDate.getTime() !== b.startDate.getTime()) {
+                return a.startDate.getTime() - b.startDate.getTime();
+            }
+            
+            return (maps.stepLevel[a.step_id] || 99) - (maps.stepLevel[b.step_id] || 99);
         });
 
         if (rowsData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-muted fs-5">ไม่มีข้อมูลสำหรับแผนงานนี้</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">ไม่มีข้อมูลสำหรับแผนงานนี้ หรือ งานถูกซ่อนอยู่ทั้งหมด</td></tr>`;
             applyDateColumnVisibility();
             return;
         }
 
         minDate.setDate(minDate.getDate() - 1);
         maxDate.setDate(maxDate.getDate() + 1);
+        
         currentMinDate = new Date(minDate); 
 
         let dateHeaders = [];
@@ -1136,7 +1236,7 @@
         currentTotalDays = dateHeaders.length;
 
         let headHtml = `<tr>
-            <th class="col-step">ขั้นตอน <span style="font-weight:normal; font-size:0.75rem; color:#64748b;">[Order/PO]</span></th>
+            <th class="col-step">ขั้นตอน <span style="font-weight:normal; font-size:0.65rem;">[Order]</span></th>
             <th class="col-code">รหัสชิ้นงาน</th>
             <th class="col-progress">ผลิตได้ / ยอดสั่ง / %</th>
             <th class="col-start">เริ่ม</th>
@@ -1146,27 +1246,32 @@
         dateHeaders.forEach((d, index) => { 
             let isToday = formatDateToLocal(d) === todayStrLocal;
             if (isToday) todayIndex = index;
-            let bgStyle = isToday ? 'background-color: var(--primary-color); color: white;' : '';
+            let bgStyle = isToday ? 'background-color: var(--neon-red); color: white;' : '';
             headHtml += `<th class="date-header" style="${bgStyle}">${d.getDate()}/${d.getMonth()+1}</th>`; 
         });
         headHtml += `</tr>`;
         thead.innerHTML = headHtml;
 
         let bodyHtml = '';
+
         let todayHighlightHtml = '';
         if (todayIndex >= 0) {
             let leftPos = todayIndex * CELL_WIDTH;
-            todayHighlightHtml = `<div style="position: absolute; left: ${leftPos}px; top: 0; width: ${CELL_WIDTH}px; height: 100%; background-color: rgba(37, 99, 235, 0.08); pointer-events: none; z-index: 1;"></div>`;
+            todayHighlightHtml = `<div style="position: absolute; left: ${leftPos}px; top: 0; width: ${CELL_WIDTH}px; height: 100%; background-color: rgba(255, 51, 102, 0.15); pointer-events: none; z-index: 1;"></div>`;
         }
 
         rowsData.forEach(row => {
             const offsetDays = Math.ceil((row.startDate - minDate) / 86400000);
             const durationDays = Math.ceil(Math.abs(row.endDate - row.startDate) / 86400000) + 1; 
+
             let percentWidth = Math.min(row.realPercent, 100); 
             
-            let percentColor = "var(--danger-color)"; 
-            if (row.realPercent >= 100) percentColor = "var(--success-color)"; 
-            else if (row.realPercent >= 50) percentColor = "var(--warning-color)";
+            let percentColor = "#ff3366"; 
+            if (row.realPercent >= 100) {
+                percentColor = "#00ff88"; 
+            } else if (row.realPercent >= 50) {
+                percentColor = "#f5a623"; 
+            }
 
             let textClass = percentWidth < 20 ? "low-percent" : "";
             let isEditing = editingTaskId === row.taskId;
@@ -1174,37 +1279,38 @@
             
             let readOnlyAttr = !isLoggedIn ? 'disabled' : '';
             let doubleClickAction = isLoggedIn ? `ondblclick="startEditing('${row.taskId}')"` : '';
-            
-            // ให้คลิกขวาเปลี่ยนสีได้เสมอ แม้ไม่ล็อกอิน
-            let rightClickAction = `oncontextmenu="changeCustomColor(event, '${row.taskId}')"`;
-            
-            let autoCalcHint = row.isAutoCalc ? `title="คำนวณอัตโนมัติ" style="color: var(--warning-color);"` : '';
+            let rightClickAction = isLoggedIn ? `oncontextmenu="changeCustomColor(event, '${row.taskId}')"` : `oncontextmenu="event.preventDefault();"`;
 
-            bodyHtml += `<tr>`;
+            let rowStyle = row.isHidden ? 'opacity: 0.6; background-color: rgba(245, 166, 35, 0.05);' : '';
+            
+            let eyeButtonHtml = row.isHidden 
+                ? `<button onclick="unhideRow('${row.taskId}')" class="btn-hide-row" title="เลิกซ่อนแถวนี้" style="color: var(--neon-yellow);"><i class="fa-solid fa-eye"></i></button>`
+                : `<button onclick="hideRow('${row.taskId}')" class="btn-hide-row" title="ซ่อนแถวนี้"><i class="fa-solid fa-eye-slash"></i></button>`;
+
+            let autoCalcHint = row.isAutoCalc ? `title="แผนงานจากการคำนวณอัตโนมัติ (ยังไม่ได้บันทึก)" style="color: #63b3ed;"` : '';
+
+            bodyHtml += `<tr style="${rowStyle}">`;
+            
             bodyHtml += `
-                <td class="col-step" style="padding: 0 10px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; height: 100%;">
-                        <div>
-                            <span class="step-name" ${autoCalcHint}>
-                                ${row.step_name} ${row.isAutoCalc ? '<i class="fa-solid fa-bolt" style="font-size: 0.7rem;"></i>' : ''}
-                            </span> 
-                        </div>
-                        <div style="text-align: right; line-height: 1.1;">
-                            <span class="step-order">[${row.order_no}]</span><br>
-                            <span style="font-size: 0.7rem; color: var(--text-muted); margin-right: 4px;">PO:${row.po_no}</span>
-                        </div>
+                <td class="col-step" style="padding: 0 8px;">
+                    <div style="display: grid; grid-template-columns: 24px 80px auto; align-items: center; width: 100%; height: 100%;">
+                        ${eyeButtonHtml}
+                        <span class="step-name" style="text-align: left; ${row.isHidden ? 'text-decoration: line-through;' : ''}" ${autoCalcHint}>
+                            ${row.step_name} ${row.isAutoCalc ? '<i class="fa-solid fa-bolt" style="font-size: 0.6rem; color: #f5a623;"></i>' : ''}
+                        </span> 
+                        <span class="step-order" style="text-align: left;">[${row.order_no}]</span>
                     </div>
                 </td>
-                <td class="col-code" style="padding: 0 10px; text-align: left;">
-                    <span class="work-code-text">${row.work_code}</span>
+                <td class="col-code" style="padding: 0 8px; text-align: left;">
+                    <span class="work-code-text" style="white-space: nowrap;">${row.work_code}</span>
                 </td>
-                <td class="col-progress" style="padding: 0;">
-                    <div style="display: flex; justify-content: center; gap: 8px; font-family: 'Segoe UI', sans-serif; font-weight: 600;">
-                        <span style="color: var(--primary-color);">${row.actual.toLocaleString()}</span>
-                        <span style="color: var(--border-dim);">/</span>
-                        <span style="color: var(--text-label);">${row.target.toLocaleString()}</span>
-                        <span style="color: var(--border-dim);">/</span>
-                        <span style="color: ${percentColor}; width: 45px; text-align:right;">${row.realPercent.toFixed(0)}%</span>
+                <td class="col-progress" style="padding: 0; font-family: 'Courier New', monospace; font-size: 0.8rem; letter-spacing: -0.5px;">
+                    <div style="display: grid; grid-template-columns: 75px 15px 75px 15px 55px; justify-content: center; align-items: center; width: 100%; height: 100%;">
+                        <span style="color: var(--neon-green); font-weight: bold; text-align: right;">${row.actual.toLocaleString()}</span>
+                        <span style="color: var(--text-muted); text-align: center;">/</span>
+                        <span style="color: #ffffff; text-align: right;">${row.target.toLocaleString()}</span>
+                        <span style="color: var(--text-muted); text-align: center;">/</span>
+                        <span style="color: ${percentColor}; font-weight: bold; text-align: right;">${row.realPercent.toFixed(1)}%</span>
                     </div>
                 </td>
                 <td class="col-start" style="padding: 0 4px;">
@@ -1223,8 +1329,9 @@
                         let leftPos = index * CELL_WIDTH;
                         dailyNumbersHtml += `
                             <div style="position: absolute; left: ${leftPos}px; top: 0; width: ${CELL_WIDTH}px; height: 100%;
-                                        display: flex; align-items: flex-end; justify-content: center; padding-bottom: 2px; pointer-events: none; z-index: 50;">
-                                <span style="font-size: 0.7rem; color: #fff; font-weight: bold; background: var(--success-color); padding: 1px 5px; border-radius: 4px;">
+                                        display: flex; align-items: flex-end; justify-content: center; padding-bottom: 2px;
+                                        pointer-events: none; z-index: 50;">
+                                <span style="font-size: 0.6rem; color: #111; font-weight: bold; background: var(--neon-yellow); padding: 0 4px; border-radius: 3px; box-shadow: 0 0 4px rgba(0,0,0,0.8);">
                                     ${row.dailyLogs[dString].toLocaleString()}
                                 </span>
                             </div>
@@ -1237,14 +1344,16 @@
             bodyHtml += `
                 <td colspan="${currentTotalDays}" style="padding: 0; min-width: ${totalGridWidth}px; max-width: ${totalGridWidth}px; position: relative;">
                     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
-                                background: repeating-linear-gradient(to right, transparent, transparent ${CELL_WIDTH - 1}px, #f1f5f9 ${CELL_WIDTH - 1}px, #f1f5f9 ${CELL_WIDTH}px);">
+                                background: repeating-linear-gradient(to right, transparent, transparent ${CELL_WIDTH - 1}px, rgba(23,99,60,0.4) ${CELL_WIDTH - 1}px, rgba(23,99,60,0.4) ${CELL_WIDTH}px);">
                     </div>
                     
                     ${todayHighlightHtml}
                     ${dailyNumbersHtml}
                     
                     <div class="gantt-bar-wrapper ${isEditing ? 'is-editing' : ''} ${isLoggedIn ? 'can-edit' : ''}" 
-                         data-taskid="${row.taskId}" ${doubleClickAction} ${rightClickAction}
+                         data-taskid="${row.taskId}"
+                         ${doubleClickAction}
+                         ${rightClickAction}
                          style="left: ${offsetDays * CELL_WIDTH}px; width: ${durationDays * CELL_WIDTH}px; ${customBg ? 'background-color: ' + customBg + ';' : ''}">
                         
                         <div class="bar-planned" ${customBg ? 'style="background-color: ' + customBg + ';"' : ''}></div>
@@ -1252,24 +1361,28 @@
                         <div class="bar-text ${textClass}">${percentWidth.toFixed(0)}%</div>
                         
                         ${(isEditing && isLoggedIn) ? `
-                            <div class="resize-handle resize-handle-left"></div>
-                            <div class="resize-handle resize-handle-right"></div>
+                            <div class="resize-handle resize-handle-left" data-action="resize-left"></div>
+                            <div class="resize-handle resize-handle-right" data-action="resize-right"></div>
                         ` : ''}
                     </div>
                 </td>
-            </tr>`;
+            `;
+            
+            bodyHtml += `</tr>`;
         });
 
         tbody.innerHTML = bodyHtml;
+
         applyDateColumnVisibility();
         
         if (isInitialRender && todayIndex >= 0) {
             setTimeout(() => {
                 const scrollArea = document.getElementById('ganttScrollArea');
-                let fixedColsWidth = isDateHidden ? (250+170+260) : (250+170+260+115+115);
+                let fixedColsWidth = isDateHidden ? (234+170+260) : (234+170+260+115+115);
                 let visibleDateArea = scrollArea.clientWidth - fixedColsWidth;
+                
                 let cellLeft = todayIndex * CELL_WIDTH;
-                let targetScroll = cellLeft - visibleDateArea + (8 * CELL_WIDTH); 
+                let targetScroll = cellLeft - visibleDateArea + (16 * CELL_WIDTH); 
                 
                 if (targetScroll > 0) {
                     scrollArea.scrollLeft = targetScroll;
@@ -1278,8 +1391,28 @@
                 isInitialRender = false;
             }, 150);
         } else {
-            setTimeout(() => restoreScrollPosition(), 100);
+            setTimeout(() => {
+                restoreScrollPosition();
+            }, 100);
         }
+    }
+
+    function changeCustomColor(e, taskId) {
+        if (!isLoggedIn) return; 
+        e.preventDefault(); 
+        let colors = ['', '#ff3366', '#f5a623', '#00ff88', '#00ffff', '#ff00ff', '#ffffff'];
+        let currentColor = customColors[taskId] || '';
+        let nextIndex = (colors.indexOf(currentColor) + 1) % colors.length;
+        let newColor = colors[nextIndex];
+
+        if (newColor === '') {
+            delete customColors[taskId];
+        } else {
+            customColors[taskId] = newColor;
+        }
+
+        localStorage.setItem('jaguar_custom_colors', JSON.stringify(customColors));
+        applyFilters(); 
     }
 
     function startEditing(taskId) {
@@ -1298,6 +1431,7 @@
 
     async function saveEdits() {
         if (!isLoggedIn) return;
+        
         const tableInputs = document.querySelectorAll('.date-input');
         tableInputs.forEach(input => {
             const taskId = input.id.replace('start_', '').replace('end_', '');
@@ -1310,7 +1444,8 @@
         });
 
         if (Object.keys(localEdits).length === 0) {
-            cancelEdits(); return;
+            cancelEdits();
+            return;
         }
 
         const btnSave = document.getElementById('btn-save-edits');
@@ -1325,20 +1460,55 @@
                 const stepId = parseInt(stepIdStr);
 
                 const existingStep = rawData.orderSteps.find(os => os.id_order === orderId && os.id_step === stepId);
-                let url = existingStep ? `${SUPABASE_URL}/order_steps?id_order=eq.${orderId}&id_step=eq.${stepId}` : `${SUPABASE_URL}/order_steps`;
-                let method = existingStep ? 'PATCH' : 'POST';
-                let payload = { id_order: orderId, id_step: stepId, start_date: dates.startDate, end_date: dates.endDate };
+                
+                let url = '';
+                let method = '';
+                let payload = {};
+                
+                if (existingStep) {
+                    url = `${SUPABASE_URL}/order_steps?id_order=eq.${orderId}&id_step=eq.${stepId}`;
+                    method = 'PATCH';
+                    payload = {
+                        start_date: dates.startDate,
+                        end_date: dates.endDate
+                    };
+                } else {
+                    url = `${SUPABASE_URL}/order_steps`;
+                    method = 'POST';
+                    payload = {
+                        id_order: orderId,
+                        id_step: stepId,
+                        start_date: dates.startDate,
+                        end_date: dates.endDate
+                    };
+                }
 
-                const response = await fetch(url, { method: method, headers: { ...headers, "Prefer": "return=minimal" }, body: JSON.stringify(payload) });
-                if (!response.ok) throw new Error(`Failed to save Task ID: ${taskId}`);
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        ...headers,
+                        "Prefer": "return=minimal" 
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to save Task ID: ${taskId}`);
+                }
             });
 
             await Promise.all(updatePromises);
+            
             alert('บันทึกแผนงานเรียบร้อยแล้ว');
-            editingTaskId = null; localEdits = {}; 
+            
+            editingTaskId = null;
+            localEdits = {}; 
             document.getElementById('save-bar').classList.remove('show');
+            
             forceSync();
+            
         } catch (error) {
+            console.error("Error saving edits:", error);
             alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง');
         } finally {
             btnSave.innerHTML = originalText;
@@ -1348,11 +1518,18 @@
 
     function setupDragAndDrop() {
         const container = document.getElementById('ganttBody');
-        let isDragging = false, currentAction = null, activeElement = null;
-        let startMouseX = 0, initialLeft = 0, initialWidth = 0, activeTaskId = null;
+        let isDragging = false;
+        let currentAction = null; 
+        let activeElement = null;
+        let startMouseX = 0;
+        let initialLeft = 0;
+        let initialWidth = 0;
+        let activeTaskId = null;
 
         container.addEventListener('mousedown', (e) => {
-            if (!isLoggedIn || !editingTaskId) return; 
+            if (!isLoggedIn) return; 
+            if (!editingTaskId) return; 
+            
             const wrapper = e.target.closest('.is-editing');
             if (!wrapper) return;
 
@@ -1360,27 +1537,36 @@
             activeTaskId = wrapper.dataset.taskid;
             isDragging = true;
             startMouseX = e.clientX;
+            
             initialLeft = parseInt(wrapper.style.left) || 0;
             initialWidth = parseInt(wrapper.style.width) || 0;
 
-            if (e.target.classList.contains('resize-handle-left')) currentAction = 'resize-left';
-            else if (e.target.classList.contains('resize-handle-right')) currentAction = 'resize-right';
-            else currentAction = 'move';
+            if (e.target.classList.contains('resize-handle-left')) {
+                currentAction = 'resize-left';
+            } else if (e.target.classList.contains('resize-handle-right')) {
+                currentAction = 'resize-right';
+            } else {
+                currentAction = 'move';
+            }
             
             document.body.style.userSelect = 'none';
         });
 
         document.addEventListener('mousemove', (e) => {
             if (!isDragging || !activeElement || !isLoggedIn) return;
+
             const dx = e.clientX - startMouseX;
             const maxAllowedWidth = currentTotalDays * CELL_WIDTH;
             
             if (currentAction === 'move') {
-                let newLeft = Math.max(0, Math.min(initialLeft + dx, maxAllowedWidth - initialWidth));
+                let newLeft = initialLeft + dx;
+                newLeft = Math.max(0, Math.min(newLeft, maxAllowedWidth - initialWidth));
                 activeElement.style.left = `${newLeft}px`;
             } 
             else if (currentAction === 'resize-left') {
-                let newLeft = initialLeft + dx, newWidth = initialWidth - dx;
+                let newLeft = initialLeft + dx;
+                let newWidth = initialWidth - dx;
+                
                 if (newWidth >= CELL_WIDTH && newLeft >= 0) {
                     activeElement.style.left = `${newLeft}px`;
                     activeElement.style.width = `${newWidth}px`;
@@ -1399,8 +1585,11 @@
             isDragging = false;
             document.body.style.userSelect = '';
 
-            const snappedOffset = Math.round(parseInt(activeElement.style.left) / CELL_WIDTH);
-            const snappedDuration = Math.max(1, Math.round(parseInt(activeElement.style.width) / CELL_WIDTH));
+            const currentLeft = parseInt(activeElement.style.left);
+            const currentWidth = parseInt(activeElement.style.width);
+            
+            const snappedOffset = Math.round(currentLeft / CELL_WIDTH);
+            const snappedDuration = Math.max(1, Math.round(currentWidth / CELL_WIDTH));
             
             activeElement.style.left = `${snappedOffset * CELL_WIDTH}px`;
             activeElement.style.width = `${snappedDuration * CELL_WIDTH}px`;
@@ -1408,19 +1597,36 @@
             if (activeTaskId && currentMinDate) {
                 let newStartDate = new Date(currentMinDate);
                 newStartDate.setDate(currentMinDate.getDate() + snappedOffset);
+                
                 let newEndDate = new Date(newStartDate);
                 newEndDate.setDate(newStartDate.getDate() + snappedDuration - 1);
                 
                 const startStr = formatDateToLocal(newStartDate);
                 const endStr = formatDateToLocal(newEndDate);
                 
-                localEdits[activeTaskId] = { startDate: startStr, endDate: endStr };
-                if(document.getElementById(`start_${activeTaskId}`)) document.getElementById(`start_${activeTaskId}`).value = startStr;
-                if(document.getElementById(`end_${activeTaskId}`)) document.getElementById(`end_${activeTaskId}`).value = endStr;
+                localEdits[activeTaskId] = {
+                    startDate: startStr,
+                    endDate: endStr
+                };
+                
+                const startInput = document.getElementById(`start_${activeTaskId}`);
+                const endInput = document.getElementById(`end_${activeTaskId}`);
+                if(startInput) startInput.value = startStr;
+                if(endInput) endInput.value = endStr;
             }
-            activeElement = null; currentAction = null;
+
+            activeElement = null;
+            currentAction = null;
         });
     }
+    
+    window.addEventListener('pageshow', function (event) {
+        if (event.persisted) {
+            console.log("โหลดหน้าเว็บจาก Cache - กำลังเชื่อมต่อฐานข้อมูลใหม่...");
+            fetchAllData(true); 
+            setupRealtime(); 
+        }
+    });
 </script>
 
 </body>
